@@ -1,0 +1,68 @@
+# agg_contribution()
+# Calculate contribution of tracked water components to irrigation
+
+# project: NASA HiMAT
+# Danielle S Grogan
+
+agg_contribution = function(path,          # path to wbm output
+                            basins,        # shapefile of basins over which to aggregate
+                            vars,          # vector of two character strings; should be two complementary variables for component tracking, e.g., GrossIrr and GrossIrr_pg
+                            percent.nm){   # character string; name for percent output, e.g., "GrossIrr_pg_percent"
+  
+  if(grepl("monthly", c(path))){
+    basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, var))
+    
+    # for monthly
+    # x30 to convert from ave/year to total per year
+    basin.array = 30*array(as.numeric(unlist(basin.agg)), dim=c(nrow(basin.agg[[1]]), ncol(basin.agg[[1]]), length(vars)))
+    gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
+    basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
+    
+    wbm.files = list.files(path      = raster.paths,
+                           full.names=F,
+                           pattern   = "wbm")
+    n.years = length(wbm.files)
+    m = seq(1,12*n.years)
+    
+    month.summary.mean  = data.frame(matrix(nr=dim(basin.array)[1], nc=dim(basin.array)[3]*12))
+    month.summary.stdev = data.frame(matrix(nr=dim(basin.array)[1], nc=dim(basin.array)[3]*12))
+    
+    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    m.names = lapply(X = month.names, FUN = rep, dim(basin.array)[3])
+    var.names = c(vars, percent.nm)
+    colnames(month.summary.mean)  = paste(unlist(m.names), var.names, sep="_")
+    colnames(month.summary.stdev) = paste(unlist(m.names), paste(var.names, "stdev", sep="_"), sep="_")
+    
+    for(month in 1:12){
+      month.data = basin.array[,which(m%%12 == month),]
+      month.summary.mean[((3*month)-2):(3*month)]  = apply(month.data, c(1,3), mean)
+      month.summary.stdev[((3*month)-2):(3*month)] = apply(month.data, c(1,3), sd)
+    }
+    
+    out = cbind(month.summary.mean, month.summary.stdev)
+    rownames(out) = c(as.character(basins$name), "all_basins")
+    
+  }else if(grepl("yearly", c(path))){
+    raster.paths = file.path(path, vars)
+    basin.agg = lapply(raster.paths, extract_ts, basins)
+    
+    # x365 to convert from ave/year to total per year
+    basin.array = 365*array(as.numeric(unlist(basin.agg)), dim=c(length(basins)+1, ncol(basin.agg[[1]]), length(vars)))
+    gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
+    basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
+    
+    mean.var = apply(basin.array, c(1,3), mean)
+    mean.var = as.data.frame(mean.var)
+    colnames(mean.var) = c(vars, percent.nm)
+    rownames(mean.var) = c(as.character(basins$name), "all_basins")
+    
+    stdev.var = apply(basin.array, c(1,3), sd)
+    stdev.var = as.data.frame(stdev.var)
+    colnames(stdev.var) = paste(c(vars, percent.nm), "stdev", sep="_")
+    rownames(stdev.var) = c(as.character(basins$name), "all_basins")
+    
+    out = cbind(mean.var, stdev.var)
+  }
+  
+  out
+}
