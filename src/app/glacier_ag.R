@@ -62,10 +62,11 @@ ex.basins = basin.shape[basin.shape$name == "Ganges" |
                           basin.shape$name == "Yellow",]
 
 
-
+mod = "ERA_hist"
+basins = basin.shape
 
 ### File paths ###
-path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/"
+path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage"
 path.out  = "results"
 path.yr   = file.path(path.base, mod, "yearly")
 path.mo   = file.path(path.base, mod, "monthly")
@@ -73,7 +74,6 @@ path.c = file.path(path.base, mod, "climatology")
 map.dir = "/net/nfs/squam/raid/userdata/dgrogan/HiMAT/Frontiers/Figures"
 
 ### Contribution of water components to agriculture  ###
-mod = "ERA_hist"
 
 ### Glacier water
 # 1. annual
@@ -150,3 +150,36 @@ out.nm = paste(path.out, mod, "_basin_IrrGross_GWpg_monthly.csv", sep="")
 write.table(basin.agg.GW.pg.m, 
             out.nm,
             sep=",")
+
+
+# Move plots to separate script?
+### Map spatial extent of glacier runoff use for irr
+
+# 1. all glacier runoff in irr in August
+irr.pg.all = subset(brick(file.path(path.c, "wbm_irrigationGross_mc.nc")), 8)
+irr.pg.all[irr.pg.all == 0] <-c(NA)
+irr.pg.all = mask(irr.pg.all, basins)
+out.nm = "ERA_hist_grossIrr_pg_yc.png"
+
+xl = c(59, 120)
+yl = c(9, 49)
+
+cols = colorRampPalette(c(brewer.pal(n=9, name='YlGn')))(100)
+
+png(file.path(map.dir, out.nm), 
+    height=6, width=7, units = 'in', res=300)
+par(mar=c(3, 3.2,0,0), xpd=TRUE)
+
+plot(coastline.shadow, xlim = xl, ylim = yl, border='grey90', lwd=4)
+plot(coastline,        xlim = xl, ylim = yl, border='grey70', col='white',  lwd=1, add=T)
+plot(irr.pg.all,   add=T, col = cols,     legend=F,          box=F, axes=T, las=1)
+#plot(glacier.shp,  add=T, col = adjustcolor(col = "grey", alpha.f = 0.5), legend=F, bty='n', box=F, axes=F)
+plot(basins, xlim = xl, ylim = yl, add=T,  lwd=0.8)
+
+# legend: NB - need to move legend to better position for publication. below plots?
+plot(irr.pg.all,    add=T, col = cols, box=F, axes=T, las=1,
+     legend.only=T, legend.width=0.4, horizontal=T,
+     axis.args=list(cex.axis=1),
+     legend.args=list(text='Glacier runoff in Irrigation (mm/year)',
+                      side=3, font=1, line=0.1, cex=1))
+dev.off()
