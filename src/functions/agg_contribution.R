@@ -54,6 +54,7 @@ agg_contribution = function(path,          # path to wbm output
     mean.var = apply(basin.array, c(1,3), mean)
     mean.var = as.data.frame(mean.var)
     colnames(mean.var) = c(vars, percent.nm)
+    colnames(mean.var) = sub("mm", "km3", colnames(mean.var)) # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
     rownames(mean.var) = c(as.character(basins$name), "all_basins")
     
     stdev.var = apply(basin.array, c(1,3), sd)
