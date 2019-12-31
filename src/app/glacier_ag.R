@@ -99,9 +99,10 @@ write.table(basin.agg.pg.m,
             out.nm,
             sep=",")
 
+
 #### MAKE THIS INTO A FUNCTION:
 # calculate month of max km3 irr_pgi
-irr.pg = subset(basin.agg.pg.m, select = grepl("mm_pg", colnames(basin.agg.pg.m)))
+irr.pg = subset(basin.agg.pg.m, select = grepl("km3_pgi", colnames(basin.agg.pg.m)))
 irr.pg.stdev = irr.pg[,13:24]
 irr.pg = irr.pg[,1:12]
 
@@ -112,7 +113,7 @@ month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 max.month.names = cbind(names(max.month.id), month.names[max.month.id])
 max.month.out = cbind(max.month.names, max.irr.pg)
 
-out.nm = paste(path.out, mod, "_basin_IrrGross_pg_km3_month_max.csv", sep="")
+out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_km3_month_max.csv", sep="")
 write.table(max.month.out, 
             out.nm,
             sep=",")
@@ -129,27 +130,27 @@ month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 max.month.names = cbind(names(max.month.id), month.names[max.month.id])
 max.month.out = cbind(max.month.names, max.irr.pg)
 
-out.nm = paste(path.out, mod, "_basin_IrrGross_pg_percent_month_max.csv", sep="")
+out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_percent_month_max.csv", sep="")
 write.table(max.month.out, 
             out.nm,
             sep=",")
 
 # 3. monthly SW_pg 
 vars = c("irrigationGross",
-         'IrrFlow_mm_pg')
-percent.nm = "GrossIrr_SWpg_percent"
+         'IrrFlow_mm_pgi')
+percent.nm = "GrossIrr_SWpgi_percent"
 basin.agg.SW.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_SWpg_monthly.csv", sep="")
+out.nm = paste(path.out, mod, "_basin_IrrGross_SWpgi_monthly.csv", sep="")
 write.table(basin.agg.SW.pg.m, 
             out.nm,
             sep=",")
 
 # 4. monthly GW_pg 
 vars = c("irrigationGross",
-         'IrrGrwt_mm_pg')
-percent.nm = "GrossIrr_GWpg_percent"
+         'IrrGrwt_mm_pgi')
+percent.nm = "GrossIrr_GWpgi_percent"
 basin.agg.GW.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_GWpg_monthly.csv", sep="")
+out.nm = paste(path.out, mod, "_basin_IrrGross_GWpgi_monthly.csv", sep="")
 write.table(basin.agg.GW.pg.m, 
             out.nm,
             sep=",")
@@ -157,32 +158,32 @@ write.table(basin.agg.GW.pg.m,
 
 # Move plots to separate script?
 ### Map spatial extent of glacier runoff use for irr
-
-# 1. all glacier runoff in irr in August
-irr.pg.all = subset(brick(file.path(path.c, "wbm_irrigationGross_mc.nc")), 8)
-irr.pg.all[irr.pg.all == 0] <-c(NA)
-irr.pg.all = mask(irr.pg.all, basins)
-out.nm = "ERA_hist_grossIrr_pg_yc.png"
-
-xl = c(59, 120)
-yl = c(9, 49)
-
-cols = colorRampPalette(c(brewer.pal(n=9, name='YlGn')))(100)
-
-png(file.path(map.dir, out.nm), 
-    height=6, width=7, units = 'in', res=300)
-par(mar=c(3, 3.2,0,0), xpd=TRUE)
-
-plot(coastline.shadow, xlim = xl, ylim = yl, border='grey90', lwd=4)
-plot(coastline,        xlim = xl, ylim = yl, border='grey70', col='white',  lwd=1, add=T)
-plot(irr.pg.all,   add=T, col = cols,     legend=F,          box=F, axes=T, las=1)
-#plot(glacier.shp,  add=T, col = adjustcolor(col = "grey", alpha.f = 0.5), legend=F, bty='n', box=F, axes=F)
-plot(basins, xlim = xl, ylim = yl, add=T,  lwd=0.8)
-
-# legend: NB - need to move legend to better position for publication. below plots?
-plot(irr.pg.all,    add=T, col = cols, box=F, axes=T, las=1,
-     legend.only=T, legend.width=0.4, horizontal=T,
-     axis.args=list(cex.axis=1),
-     legend.args=list(text='Glacier runoff in Irrigation (mm/year)',
-                      side=3, font=1, line=0.1, cex=1))
-dev.off()
+# 
+# # 1. all glacier runoff in irr in August
+# irr.pg.all = subset(brick(file.path(path.c, "wbm_irrigationGross_mc.nc")), 8)
+# irr.pg.all[irr.pg.all == 0] <-c(NA)
+# irr.pg.all = mask(irr.pg.all, basins)
+# out.nm = "ERA_hist_grossIrr_pg_yc.png"
+# 
+# xl = c(59, 120)
+# yl = c(9, 49)
+# 
+# cols = colorRampPalette(c(brewer.pal(n=9, name='YlGn')))(100)
+# 
+# png(file.path(map.dir, out.nm), 
+#     height=6, width=7, units = 'in', res=300)
+# par(mar=c(3, 3.2,0,0), xpd=TRUE)
+# 
+# plot(coastline.shadow, xlim = xl, ylim = yl, border='grey90', lwd=4)
+# plot(coastline,        xlim = xl, ylim = yl, border='grey70', col='white',  lwd=1, add=T)
+# plot(irr.pg.all,   add=T, col = cols,     legend=F,          box=F, axes=T, las=1)
+# #plot(glacier.shp,  add=T, col = adjustcolor(col = "grey", alpha.f = 0.5), legend=F, bty='n', box=F, axes=F)
+# plot(basins, xlim = xl, ylim = yl, add=T,  lwd=0.8)
+# 
+# # legend: NB - need to move legend to better position for publication. below plots?
+# plot(irr.pg.all,    add=T, col = cols, box=F, axes=T, las=1,
+#      legend.only=T, legend.width=0.4, horizontal=T,
+#      axis.args=list(cex.axis=1),
+#      legend.args=list(text='Glacier runoff in Irrigation (mm/year)',
+#                       side=3, font=1, line=0.1, cex=1))
+# dev.off()
