@@ -68,7 +68,7 @@ basins = basin.shape
 
 ### File paths ###
 path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12"
-path.out  = "results"
+path.out  = "results/"
 path.yr   = file.path(path.base, mod, "yearly")
 path.mo   = file.path(path.base, mod, "monthly")
 path.c = file.path(path.base, mod, "climatology")
@@ -84,17 +84,17 @@ vars = c("irrigationGross",
          "GrossIrr_mm_pgi")
 percent.nm = "GrossIrr_pgi_percent"
 basin.agg.pg = agg_contribution(path.yr, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_yearly.csv", sep="")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_yearly.csv", sep="")
 write.table(basin.agg.pg, 
             out.nm,
             sep=",")
 
-# 2. monthly
+# 2. monthly (NB: this step takes a long time)
 vars = c("irrigationGross",
          'GrossIrr_mm_pgi')
 percent.nm = "GrossIrr_pgi_percent"
 basin.agg.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_monthly.csv", sep="")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_monthly.csv", sep="")
 write.table(basin.agg.pg.m, 
             out.nm,
             sep=",")
