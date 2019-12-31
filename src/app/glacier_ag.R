@@ -11,6 +11,7 @@ library(rgdal)
 library(rgeos)
 library(maptools)
 library(maps)
+library(abind)
 
 ### Source functions from other github repos:
 # wbm_load()
@@ -66,38 +67,40 @@ mod = "ERA_hist"
 basins = basin.shape
 
 ### File paths ###
-path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage"
+path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12"
 path.out  = "results"
 path.yr   = file.path(path.base, mod, "yearly")
 path.mo   = file.path(path.base, mod, "monthly")
 path.c = file.path(path.base, mod, "climatology")
-map.dir = "/net/nfs/squam/raid/userdata/dgrogan/HiMAT/Frontiers/Figures"
+map.dir = "/net/nfs/squam/raid/userdata/dgrogan/HiMAT/2019_12/Figures"
 
 ### Contribution of water components to agriculture  ###
+# NB  _pgi := glacier ice melt. 
+#     _pgn := glacier non-ice runoff (e.g., rain on the glacier)
 
-### Glacier water
+### Glacier water ice melt
 # 1. annual
 vars = c("irrigationGross",
-         'GrossIrr_mm_pg')
-percent.nm = "GrossIrr_pg_percent"
+         "GrossIrr_mm_pgi")
+percent.nm = "GrossIrr_pgi_percent"
 basin.agg.pg = agg_contribution(path.yr, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_pg_yearly.csv", sep="")
+out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_yearly.csv", sep="")
 write.table(basin.agg.pg, 
             out.nm,
             sep=",")
 
 # 2. monthly
 vars = c("irrigationGross",
-         'GrossIrr_mm_pg')
-percent.nm = "GrossIrr_pg_percent"
+         'GrossIrr_mm_pgi')
+percent.nm = "GrossIrr_pgi_percent"
 basin.agg.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_pg_monthly.csv", sep="")
+out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_monthly.csv", sep="")
 write.table(basin.agg.pg.m, 
             out.nm,
             sep=",")
 
 #### MAKE THIS INTO A FUNCTION:
-# calculate month of max km3 irr_pg
+# calculate month of max km3 irr_pgi
 irr.pg = subset(basin.agg.pg.m, select = grepl("mm_pg", colnames(basin.agg.pg.m)))
 irr.pg.stdev = irr.pg[,13:24]
 irr.pg = irr.pg[,1:12]
