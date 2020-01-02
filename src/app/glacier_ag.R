@@ -82,8 +82,9 @@ map.dir = "figures/"
 # 1. annual
 vars = c("irrigationGross",
          "GrossIrr_mm_pgi")
-percent.nm = "GrossIrr_pgi_percent"
-basin.agg.pgi = agg_contribution(path.yr, basins, vars, percent.nm) 
+percent.nm = "GrossIrr_percent_pgi"
+years = seq(2000, 2001)
+basin.agg.pgi = agg_contribution(path.yr, basins, vars, years, percent.nm) 
 out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_yearly.csv", sep="")
 write.table(basin.agg.pg, 
             out.nm,
@@ -92,56 +93,44 @@ write.table(basin.agg.pg,
 # 2. monthly (NB: this step takes a long time)
 vars = c("irrigationGross",
          'GrossIrr_mm_pgi')
-percent.nm = "GrossIrr_pgi_percent"
-basin.agg.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
+percent.nm = "GrossIrr_percent_pgi"
+years = seq(2000, 2001)
+basin.agg.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm) 
 out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_monthly.csv", sep="")
-write.table(basin.agg.pg.m, 
+write.table(basin.agg.pgi.m, 
             out.nm,
             sep=",")
 
 
-#### MAKE THIS INTO A FUNCTION:
-# calculate month of max km3 irr_pgi
-irr.pg = subset(basin.agg.pg.m, select = grepl("km3_pgi", colnames(basin.agg.pg.m)))
-irr.pg.stdev = irr.pg[,13:24]
-irr.pg = irr.pg[,1:12]
-
-max.irr.pg = apply(irr.pg, c(1), max, na.rm=T)
-max.month = (irr.pg == max.irr.pg)
-max.month.id = apply(max.month, MARGIN = c(1), FUN = function(x) which(x == max(x, na.rm=T)))
-month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-max.month.names = cbind(names(max.month.id), month.names[max.month.id])
-max.month.out = cbind(max.month.names, max.irr.pg)
-
-out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_km3_month_max.csv", sep="")
-write.table(max.month.out, 
+# 3a. Calculate month of max km3 irr_pgi
+irr_pgi_max_month = max_month(var.m = basin.agg.pgi.m,
+                              var   = "pgi",
+                              unit  = "km3")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_km3_month_max.csv", sep="")
+write.table(irr_pgi_max_month, 
             out.nm,
+            quote = F,
             sep=",")
 
-# calculate month of max % irr_pg
-irr.pg = subset(basin.agg.pg.m, select = grepl("percent", colnames(basin.agg.pg.m)))
-irr.pg.stdev = irr.pg[,13:24]
-irr.pg = irr.pg[,1:12]
-
-max.irr.pg = apply(irr.pg, c(1), max, na.rm=T)
-max.month = (irr.pg == max.irr.pg)
-max.month.id = apply(max.month, MARGIN = c(1), FUN = function(x) which(x == max(x, na.rm=T)))
-month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-max.month.names = cbind(names(max.month.id), month.names[max.month.id])
-max.month.out = cbind(max.month.names, max.irr.pg)
-
-out.nm = paste(path.out, mod, "_basin_IrrGross_pgi_percent_month_max.csv", sep="")
-write.table(max.month.out, 
+# 3b. Calculate month of max % irr_pg
+irr_pgi_max_month.percent = max_month(var.m = basin.agg.pgi.m,
+                                      var   = "pgi",
+                                      unit  = "percent")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_percent_month_max.csv", sep="")
+write.table(irr_pgi_max_month, 
             out.nm,
+            quote = F,
             sep=",")
+
+
 
 # 3. monthly SW_pg 
 vars = c("irrigationGross",
          'IrrFlow_mm_pgi')
 percent.nm = "GrossIrr_SWpgi_percent"
-basin.agg.SW.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
+basin.agg.SW.pgi.m = agg_contribution(path.mo, basins, vars, percent.nm) 
 out.nm = paste(path.out, mod, "_basin_IrrGross_SWpgi_monthly.csv", sep="")
-write.table(basin.agg.SW.pg.m, 
+write.table(basin.agg.SW.pgi.m, 
             out.nm,
             sep=",")
 
@@ -149,9 +138,9 @@ write.table(basin.agg.SW.pg.m,
 vars = c("irrigationGross",
          'IrrGrwt_mm_pgi')
 percent.nm = "GrossIrr_GWpgi_percent"
-basin.agg.GW.pg.m = agg_contribution(path.mo, basins, vars, percent.nm) 
+basin.agg.GW.pgi.m = agg_contribution(path.mo, basins, vars, percent.nm) 
 out.nm = paste(path.out, mod, "_basin_IrrGross_GWpgi_monthly.csv", sep="")
-write.table(basin.agg.GW.pg.m, 
+write.table(basin.agg.GW.pgi.m, 
             out.nm,
             sep=",")
 

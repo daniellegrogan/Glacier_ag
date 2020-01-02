@@ -7,6 +7,7 @@
 extract_ts = function(raster.path, # path to wbm output
                       shp,         # shapefile for spatial aggregation
                       var = NA,    # only needed if wbm output is monthly; variable name to load
+                      yrs = NA,    # sequence of years. If NA, all years are used
                       s=1,         # sum = 1 (set to 0 for average spatial aggregation)
                       cell.area=1, 
                       weight=T, 
@@ -14,23 +15,31 @@ extract_ts = function(raster.path, # path to wbm output
   region = gUnaryUnion(shp, id = rep(1, length(shp)))
   
   if(grepl("yearly", c(raster.path))){
-    brk = do.call(brick,
-                  lapply(list.files(path      = raster.path,
-                                    full.names=T,
-                                    pattern   = "wbm"),
-                         raster))
+    
+    if(sum(is.na(years)) == 1){
+      file.list = list.files(path = path, full.names = T)
+    }else{
+      file.list.full = list.files(path = file.path(raster.path, var), full.names = T)
+      file.list = file.list.full[sapply(years, FUN = function(x) grep(pattern=x, file.list.full))]
+    }
+    brk = do.call(stack,
+                  lapply(file.list, 
+                         raster::brick, 
+                         varname = var))
     
   }else if(grepl("monthly", c(raster.path))){
     
-    brk = do.call(stack,
-                  lapply(list.files(path       = raster.path,
-                                    full.names = T,
-                                    pattern    = "wbm"),
-                         brick, 
-                         varname = var))
+    if(sum(is.na(years)) == 1){
+      file.list = list.files(path = raster.path, full.names = T)
+    }else{
+      file.list.full = list.files(path = raster.path, full.names = T)
+      file.list = file.list.full[sapply(years, FUN = function(x) grep(pattern=x, file.list.full))]
+    }
     
-    ## FOR TESTING ONLY ###
-    brk = subset(brk, 1:24)
+    brk = do.call(stack,
+                  lapply(file.list, 
+                         raster::brick, 
+                         varname = var))
   }
   
   s1 = spatial_aggregation(brk, shp,    s, cell.area, weight, poly.out)

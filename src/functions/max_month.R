@@ -18,8 +18,8 @@ max_month = function(var.m,          # monthly values
   max.month = (var.unit == max.unit)
   max.month.id = apply(max.month, MARGIN = c(1), FUN = function(x) which(x == max(x, na.rm=T)))
   month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-  max.month.out = cbind(month.names[max.month.id], max.unit)
-  
+  max.month.out = cbind(names(max.unit), month.names[max.month.id], as.numeric(max.unit))
+  colnames(max.month.out) = c("Basin", "Month_of_Max", "Max_Value")
   out = max.month.out
 }
   
