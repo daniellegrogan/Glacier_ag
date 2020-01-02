@@ -33,6 +33,7 @@ agg_contribution = function(path,          # path to wbm output
     colnames(month.summary.mean)  = paste(unlist(m.names), var.names, sep="_")
     colnames(month.summary.mean) = sub("mm", "km3", colnames(month.summary.mean))   # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
     colnames(month.summary.stdev) = paste(unlist(m.names), paste(var.names, "stdev", sep="_"), sep="_")
+    colnames(month.summary.stdev) = sub("mm", "km3", colnames(month.summary.stdev))   # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
     
     m = seq(1:ncol(basin.array))
     

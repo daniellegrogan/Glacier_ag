@@ -28,6 +28,9 @@ extract_ts = function(raster.path, # path to wbm output
                                     pattern    = "wbm"),
                          brick, 
                          varname = var))
+    
+    ## FOR TESTING ONLY ###
+    brk = subset(brk, 1:24)
   }
   
   s1 = spatial_aggregation(brk, shp,    s, cell.area, weight, poly.out)
