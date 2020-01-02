@@ -18,9 +18,9 @@ agg_contribution = function(path,          # path to wbm output
     gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
     basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
     
-    wbm.files = list.files(path      = raster.paths,
-                           full.names=F,
-                           pattern   = "wbm")
+    wbm.files = list.files(path       = path,
+                           full.names = F,
+                           pattern    = "wbm")
     n.years = length(wbm.files)
     m = seq(1,12*n.years)
     
@@ -33,6 +33,8 @@ agg_contribution = function(path,          # path to wbm output
     colnames(month.summary.mean)  = paste(unlist(m.names), var.names, sep="_")
     colnames(month.summary.mean) = sub("mm", "km3", colnames(month.summary.mean))   # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
     colnames(month.summary.stdev) = paste(unlist(m.names), paste(var.names, "stdev", sep="_"), sep="_")
+    
+    m = seq(1:ncol(basin.array))
     
     for(month in 1:12){
       month.data = basin.array[,which(m%%12 == month),]
