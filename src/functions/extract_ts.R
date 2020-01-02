@@ -23,13 +23,14 @@ extract_ts = function(raster.path, # path to wbm output
   }else if(grepl("monthly", c(raster.path))){
     
     brk = do.call(stack,
-                  lapply(list.files(path      = raster.path,
-                                    full.names=T,
-                                    pattern   = "wbm"),
-                         brick, varname = var))
+                  lapply(list.files(path       = raster.path,
+                                    full.names = T,
+                                    pattern    = "wbm"),
+                         brick, 
+                         varname = var))
   }
   
-  s1 = spatial_aggregation(brk, shp, s, cell.area, weight, poly.out)
+  s1 = spatial_aggregation(brk, shp,    s, cell.area, weight, poly.out)
   s2 = spatial_aggregation(brk, region, s, cell.area, weight, poly.out)
   
   out = rbind(s1,s2)

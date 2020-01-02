@@ -72,7 +72,7 @@ path.out  = "results/"
 path.yr   = file.path(path.base, mod, "yearly")
 path.mo   = file.path(path.base, mod, "monthly")
 path.c = file.path(path.base, mod, "climatology")
-map.dir = "/net/nfs/squam/raid/userdata/dgrogan/HiMAT/2019_12/Figures"
+map.dir = "figures/"
 
 ### Contribution of water components to agriculture  ###
 # NB  _pgi := glacier ice melt. 
@@ -83,7 +83,7 @@ map.dir = "/net/nfs/squam/raid/userdata/dgrogan/HiMAT/2019_12/Figures"
 vars = c("irrigationGross",
          "GrossIrr_mm_pgi")
 percent.nm = "GrossIrr_pgi_percent"
-basin.agg.pg = agg_contribution(path.yr, basins, vars, percent.nm) 
+basin.agg.pgi = agg_contribution(path.yr, basins, vars, percent.nm) 
 out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_yearly.csv", sep="")
 write.table(basin.agg.pg, 
             out.nm,
