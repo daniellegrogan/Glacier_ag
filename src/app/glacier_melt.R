@@ -17,7 +17,7 @@ eval(parse(text=create_dir.script))
 ##################################################################################################################################
 glacier_agg = function(gcm, rcp, path.base, var, shp, shp.names){
   raster.path = file.path(path.base, paste(gcm, "_", rcp, "_c2_ba1_100sets_2000_2100_m.nc", sep=""))
-  b = rsater::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
+  b = raster::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
   a = raster::extract(b, shp, fun = sum,  na.rm = T, sp = F)
   rownames(a) = shp.names
   out.nm      = file.path("results", gcm, rcp, paste(gcm, rcp, "glacier", var, "basins_m.csv", sep = "_"))
