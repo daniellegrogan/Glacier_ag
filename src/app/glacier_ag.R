@@ -34,6 +34,10 @@ eval(parse(text=wbm_model_mean.script))
 raster_time_ave.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/raster_time_ave.R", ssl.verifypeer=F)
 eval(parse(text=raster_time_ave.script))
 
+# create_dir()
+create_dir.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/create_dir.R", ssl.verifypeer=F)
+eval(parse(text=create_dir.script))
+
 ### Source functions from within this project:
 file.sources = list.files("src/functions", full.names = T)
 sapply(file.sources, source)
@@ -64,6 +68,7 @@ ex.basins = basin.shape[basin.shape$name == "Ganges" |
 
 
 mod = "ERA_hist"
+create_dir(file.path("results", mod))
 basins = basin.shape
 years = seq(2000, 2001)  # for testing
 
@@ -80,6 +85,21 @@ map.dir = "figures/"
 #     _pgn := glacier non-ice runoff (e.g., rain on the glacier)
 
 ### Glacier water ice melt
+# 0. Monthly ice melt and total glacier runoff
+basin_icemelt_m = raster::extract(brick("/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset/ERA-Interim_c2_ba1_100sets_1980_2017_m.nc", 
+                                        varname = "melt"), 
+                                  basins, 
+                                  fun   = sum, 
+                                  na.rm = T, 
+                                  sp    = F)
+
+basin_glrunoff_m = raster::extract(brick("/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset/ERA-Interim_c2_ba1_100sets_1980_2017_m.nc", 
+                                         varname = "runoff"), 
+                                   basins, 
+                                   fun   = sum, 
+                                   na.rm = T, 
+                                   sp    = F)
+
 # 1. annual
 vars = c("irrigationGross",
          "GrossIrr_mm_pgi")
