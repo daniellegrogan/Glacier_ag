@@ -19,13 +19,12 @@ extract_ts = function(raster.path, # path to wbm output
     if(sum(is.na(years)) == 1){
       file.list = list.files(path = path, full.names = T)
     }else{
-      file.list.full = list.files(path = file.path(raster.path, var), full.names = T)
+      file.list.full = list.files(path = raster.path, full.names = T)
       file.list = file.list.full[sapply(years, FUN = function(x) grep(pattern=x, file.list.full))]
     }
     brk = do.call(stack,
                   lapply(file.list, 
-                         raster::brick, 
-                         varname = var))
+                         raster::brick))
     
   }else if(grepl("monthly", c(raster.path))){
     

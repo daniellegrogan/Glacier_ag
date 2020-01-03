@@ -7,7 +7,7 @@
 agg_contribution = function(path,          # path to wbm output
                             basins,        # shapefile of basins over which to aggregate
                             vars,          # vector of two character strings; should be two complementary variables for component tracking, e.g., GrossIrr and GrossIrr_pg
-                            years,
+                            years, 
                             percent.nm){   # character string; name for percent output, e.g., "GrossIrr_pg_percent"
   
   if(grepl("monthly", c(path))){
@@ -53,8 +53,8 @@ agg_contribution = function(path,          # path to wbm output
     
     # x365 to convert from ave/year to total per year
     basin.array = 365*array(as.numeric(unlist(basin.agg)), dim=c(length(basins)+1, ncol(basin.agg[[1]]), length(vars)))
-    gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
-    basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
+    var_percent = 100*(basin.array[,,2]/basin.array[,,1])
+    basin.array = abind(basin.array, var_percent, along=3)
     
     mean.var = apply(basin.array, c(1,3), mean)
     mean.var = as.data.frame(mean.var)

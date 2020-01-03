@@ -65,6 +65,7 @@ ex.basins = basin.shape[basin.shape$name == "Ganges" |
 
 mod = "ERA_hist"
 basins = basin.shape
+years = seq(2000, 2001)  # for testing
 
 ### File paths ###
 path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12"
@@ -83,7 +84,6 @@ map.dir = "figures/"
 vars = c("irrigationGross",
          "GrossIrr_mm_pgi")
 percent.nm = "GrossIrr_percent_pgi"
-years = seq(2000, 2001)
 basin.agg.pgi = agg_contribution(path.yr, basins, vars, years, percent.nm) 
 out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_yearly.csv", sep="")
 write.table(basin.agg.pg, 
@@ -94,7 +94,6 @@ write.table(basin.agg.pg,
 vars = c("irrigationGross",
          'GrossIrr_mm_pgi')
 percent.nm = "GrossIrr_percent_pgi"
-years = seq(2000, 2001)
 basin.agg.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm) 
 out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_pgi_monthly.csv", sep="")
 write.table(basin.agg.pgi.m, 
@@ -124,26 +123,65 @@ write.table(irr_pgi_max_month,
 
 
 
-# 3. monthly SW_pg 
+# 4. monthly SW_pgi 
 vars = c("irrigationGross",
          'IrrFlow_mm_pgi')
-percent.nm = "GrossIrr_SWpgi_percent"
-basin.agg.SW.pgi.m = agg_contribution(path.mo, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_SWpgi_monthly.csv", sep="")
+percent.nm = "GrossIrr_percent_SWpgi"
+basin.agg.SW.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm) 
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGross_SWpgi_monthly.csv", sep="")
 write.table(basin.agg.SW.pgi.m, 
             out.nm,
             sep=",")
 
-# 4. monthly GW_pg 
+# 4a. Calculate month of max km3 SW_pgi
+SW_pgi_max_month = max_month(var.m = basin.agg.SW.pgi.m,
+                              var   = "pgi",
+                              unit  = "km3")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrFlow_pgi_km3_month_max.csv", sep="")
+write.table(SW_pgi_max_month, 
+            out.nm,
+            quote = F,
+            sep=",")
+
+# 4b. Calculate month of max % SW_pgi
+SW_pgi_max_month.percent = max_month(var.m = basin.agg.SW.pgi.m,
+                                      var   = "SWpgi",
+                                      unit  = "percent")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrFlow_pgi_percent_month_max.csv", sep="")
+write.table(SW_pgi_max_month.percent, 
+            out.nm,
+            quote = F,
+            sep=",")
+
+# 5. monthly GW_pg 
 vars = c("irrigationGross",
          'IrrGrwt_mm_pgi')
-percent.nm = "GrossIrr_GWpgi_percent"
-basin.agg.GW.pgi.m = agg_contribution(path.mo, basins, vars, percent.nm) 
-out.nm = paste(path.out, mod, "_basin_IrrGross_GWpgi_monthly.csv", sep="")
+percent.nm = "GrossIrr_percent_GWpgi"
+basin.agg.GW.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm) 
+out.nm = paste(path.out, mod, "/",  mod, "_basin_IrrGross_GWpgi_monthly.csv", sep="")
 write.table(basin.agg.GW.pgi.m, 
             out.nm,
             sep=",")
 
+# 5a. Calculate month of max km3 GW_pgi
+GW_pgi_max_month = max_month(var.m = basin.agg.GW.pgi.m,
+                             var   = "pgi",
+                             unit  = "km3")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGW_GWpgi_km3_month_max.csv", sep="")
+write.table(GW_pgi_max_month, 
+            out.nm,
+            quote = F,
+            sep=",")
+
+# 5b. Calculate month of max % SW_pgi
+GW_pgi_max_month.percent = max_month(var.m = basin.agg.GW.pgi.m,
+                                     var   = "GWpgi",
+                                     unit  = "percent")
+out.nm = paste(path.out, mod, "/", mod, "_basin_IrrGW_GWpgi_percent_month_max.csv", sep="")
+write.table(GW_pgi_max_month.percent, 
+            out.nm,
+            quote = F,
+            sep=",")
 
 # Move plots to separate script?
 ### Map spatial extent of glacier runoff use for irr
