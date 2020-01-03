@@ -71,8 +71,8 @@ var       = 'runoff'
 
 ## 2a. for 3-RCP set of models
 mods.3    = read.csv("data/CMIP5_models3.csv")  # models with 3 RCP scenarios
-gcms.3    = mods$GCM
-rcps.3    = colnames(mods)[2:ncol(mods)]
+gcms.3    = mods.3$GCM
+rcps.3    = colnames(mods.3)[2:ncol(mods.3)]
 
 mod.matrix = mapply(rep, gcms.3, length(rcps.3))
 
@@ -86,8 +86,8 @@ mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matr
 ## 2b. for 4-RCP set of models
 var       = 'runoff'
 mods.4    = read.csv("data/CMIP5_models4.csv")  # models with 3 RCP scenarios
-gcms.4    = mods$GCM
-rcps.4    = colnames(mods)[2:ncol(mods)]
+gcms.4    = mods.4$GCM
+rcps.4    = colnames(mods.4)[2:ncol(mods.4)]
 
 mod.matrix = mapply(rep, gcms.4, length(rcps.4))
 
