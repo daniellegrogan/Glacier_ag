@@ -5,9 +5,14 @@
 # Danielle S Grogan
 
 ### R Libraries
+library(RCurl)  # enables sourcing R code from github
 library(raster)
 library(rgdal)
 library(rgeos)
+
+# create_dir()
+create_dir.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/create_dir.R", ssl.verifypeer=F)
+eval(parse(text=create_dir.script))
 
 ##################################################################################################################################
 glacier_agg = function(gcm, rcp, path.base, var, shp, shp.names){
