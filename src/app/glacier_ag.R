@@ -107,14 +107,15 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
 ### MAIN ####
 #######################################################################################################################################
 
-mod = "ERA_hist"
-path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod)
-years = seq(1980, 2016)  # full historical time series
-
 # Inputs: same for all variables
 basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
-path.out  = file.path("results", mod)
 map.dir   = "figures/"
+
+############ HISTORICAL ################
+mod = "ERA_hist"
+path.out  = file.path("results", mod)
+path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod)
+years = seq(1980, 2016)  # full historical time series
 
 # Inputs: variable pairs for which to calculate contributions
 # NB  _pgi := glacier ice melt. 
