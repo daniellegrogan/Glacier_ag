@@ -66,15 +66,17 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   out.var = sub("mm_", "", c(vars[2]))
  
   # 1. annual contribution
-  basin.agg.pgi = agg_contribution(path.yr, basins, vars, years, percent.nm) 
-  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_yearly.csv", sep="")
+  out.nm.pre = paste(path.out, mod, "/", mod, "_basin_", sep="")
+  basin.agg.pgi = agg_contribution(path.yr, basins, vars, years, percent.nm, out.nm.pre)
+  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_yearly_stats.csv", sep="")
   write.table(basin.agg.pgi, 
               out.nm,
               sep=",")
   
   # 2. monthly contribution (NB: this step takes a long time)
-  basin.agg.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm) 
-  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_monthly.csv", sep="")
+  out.nm.pre = paste(path.out, mod, "/", mod, "_basin_", sep="")
+  basin.agg.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm, out.nm.pre) 
+  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_monthly_stats.csv", sep="")
   write.table(basin.agg.pgi.m, 
               out.nm,
               sep=",")
@@ -84,7 +86,7 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   irr_pgi_max_month = max_month(var.m = basin.agg.pgi.m,
                                 var   = "pgi",
                                 unit  = "km3")
-  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_km3_month_max.csv", sep="")
+  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_km3_month_max.csv", sep="")
   write.table(irr_pgi_max_month, 
               out.nm,
               quote = F,
@@ -94,7 +96,7 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   irr_pgi_max_month.percent = max_month(var.m = basin.agg.pgi.m,
                                         var   = "pgi",
                                         unit  = "percent")
-  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_percent_month_max.csv", sep="")
+  out.nm = paste(path.out, mod, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_percent_month_max.csv", sep="")
   write.table(irr_pgi_max_month, 
               out.nm,
               quote = F,

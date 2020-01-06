@@ -4,6 +4,10 @@
 # project: NASA HiMAT
 # Danielle S Grogan
 
+library(raster)
+library(rgdal)
+library(rgeos)
+
 extract_ts = function(raster.path, # path to wbm output
                       shp,         # shapefile for spatial aggregation
                       var = NA,    # only needed if wbm output is monthly; variable name to load

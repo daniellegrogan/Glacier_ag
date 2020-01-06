@@ -4,11 +4,17 @@
 # project: NASA HiMAT
 # Danielle S Grogan
 
+library(raster)
+library(rgdal)
+library(rgeos)
+
 agg_contribution = function(path,          # path to wbm output
                             basins,        # shapefile of basins over which to aggregate
-                            vars,          # vector of two character strings; should be two complementary variables for component tracking, e.g., GrossIrr and GrossIrr_pg
-                            years, 
-                            percent.nm){   # character string; name for percent output, e.g., "GrossIrr_pg_percent"
+                            vars,          # vector of two character strings: should be two complementary variables for component tracking, e.g., GrossIrr and GrossIrr_pg
+                            years,         # vector of years over which to process, e.g., seq(2000, 2005)
+                            percent.nm,    # character string: name for percent output, e.g., "GrossIrr_pg_percent"
+                            out.nm.pre     # character string: location for output with file prefix, e.g., "results/ERA_hist/ERA_hist_basin_"
+                            ){     
   
   if(grepl("monthly", c(path))){
     basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, var, years))
@@ -19,16 +25,32 @@ agg_contribution = function(path,          # path to wbm output
     gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
     basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
     
-    wbm.files = list.files(path       = path,
-                           full.names = F,
-                           pattern    = "wbm")
-    n.years = length(wbm.files)
+    # make a date sequence for the column names. assume full years (Jan through Dec)
+    month.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
+                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
+                      by   = "month")
+    
+    # write full time series to file
+    for(i in 1:dim(basin.array)[3]){
+      if(i < 3){
+        out.nm.i = paste(out.nm.pre, vars[i], "_", min(years), "_", max(years), "_monthly.csv", sep="")
+      }else{
+        out.nm.i = paste(out.nm.pre, sub("mm", "percent", vars[2]), "_", min(years), "_", max(years), "_monthly.csv", sep="")
+      }
+      var.out = basin.array[,,i]
+      rownames(var.out) = c(as.character(basins$name), "all_basins")
+      colnames(var.out) = as.character(month.cols)
+      write.csv(var.out, out.nm.i)
+    }
+    
+    # calculate mean and stdev
+    n.years = length(years)
     m = seq(1,12*n.years)
+    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     
     month.summary.mean  = data.frame(matrix(nr=dim(basin.array)[1], nc=dim(basin.array)[3]*12))
     month.summary.stdev = data.frame(matrix(nr=dim(basin.array)[1], nc=dim(basin.array)[3]*12))
     
-    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     m.names = lapply(X = month.names, FUN = rep, dim(basin.array)[3])
     var.names = c(vars, percent.nm)
     colnames(month.summary.mean)  = paste(unlist(m.names), var.names, sep="_")
@@ -56,6 +78,20 @@ agg_contribution = function(path,          # path to wbm output
     var_percent = 100*(basin.array[,,2]/basin.array[,,1])
     basin.array = abind(basin.array, var_percent, along=3)
     
+    # write full time series to file
+    for(i in 1:dim(basin.array)[3]){
+      if(i < 3){
+        out.nm.i = paste(out.nm.pre, vars[i], "_", min(years), "_", max(years), "_yearly.csv", sep="")
+      }else{
+        out.nm.i = paste(out.nm.pre, sub("mm", "percent", vars[2]), "_", min(years), "_", max(years), "_yearly.csv", sep="")
+      }
+      var.out = basin.array[,,i]
+      rownames(var.out) = c(as.character(basins$name), "all_basins")
+      colnames(var.out) = years
+      write.csv(var.out, out.nm.i)
+    }
+    
+    # calculate mean and stdev
     mean.var = apply(basin.array, c(1,3), mean)
     mean.var = as.data.frame(mean.var)
     colnames(mean.var) = c(vars, percent.nm)
@@ -70,5 +106,6 @@ agg_contribution = function(path,          # path to wbm output
     out = cbind(mean.var, stdev.var)
   }
   
-  out
+  # output mean and stdev (needed in other function calls)
+  out   
 }
