@@ -17,6 +17,7 @@ eval(parse(text=create_dir.script))
 ##################################################################################################################################
 glacier_agg = function(gcm, rcp, path.base, var, shp, shp.names){
   raster.path = file.path(path.base, paste(gcm, "_", rcp, "_c2_ba1_100sets_2000_2100_m.nc", sep=""))
+  raster.path = sub(" ", "", raster.path) # fix character string issue
   b = raster::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
   a = raster::extract(b, shp, fun = sum,  na.rm = T, sp = F)
   rownames(a) = shp.names
