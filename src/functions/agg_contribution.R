@@ -33,7 +33,7 @@ agg_contribution = function(path,          # path to wbm output
     # write full time series to file
     for(i in 1:dim(basin.array)[3]){
       if(i < 3){
-        out.nm.i = paste(out.nm.pre, vars[i], "_", min(years), "_", max(years), "_monthly.csv", sep="")
+        out.nm.i = paste(out.nm.pre, sub("mm", "km3", vars[i]), "_", min(years), "_", max(years), "_monthly.csv", sep="")
       }else{
         out.nm.i = paste(out.nm.pre, sub("mm", "percent", vars[2]), "_", min(years), "_", max(years), "_monthly.csv", sep="")
       }
@@ -81,7 +81,7 @@ agg_contribution = function(path,          # path to wbm output
     # write full time series to file
     for(i in 1:dim(basin.array)[3]){
       if(i < 3){
-        out.nm.i = paste(out.nm.pre, vars[i], "_", min(years), "_", max(years), "_yearly.csv", sep="")
+        out.nm.i = paste(out.nm.pre, sub("mm", "km3", vars[i]), "_", min(years), "_", max(years), "_yearly.csv", sep="")
       }else{
         out.nm.i = paste(out.nm.pre, sub("mm", "percent", vars[2]), "_", min(years), "_", max(years), "_yearly.csv", sep="")
       }
