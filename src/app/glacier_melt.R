@@ -1,4 +1,4 @@
-# glacier_melt()
+# glacier_melt()  # CHECK FILE NAMING ISSUE
 
 # Spatial aggregation of PyGEM model output: calculate glacier melt in km3/month for each basin
 # project: NASA HiMAT
@@ -16,13 +16,17 @@ eval(parse(text=create_dir.script))
 
 ##################################################################################################################################
 glacier_agg = function(gcm, rcp, path.base, var, shp, shp.names){
-  raster.path = file.path(path.base, paste(gcm, "_", rcp, "_c2_ba1_100sets_2000_2100_m.nc", sep=""))
-  raster.path = sub(" ", "", raster.path) # fix character string issue
-  b = raster::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
-  a = raster::extract(b, shp, fun = sum,  na.rm = T, sp = F)
-  rownames(a) = shp.names
+  gcm = as.character(sub(" ", "", gcm))
+  rcp = as.character(sub(" ", "", rcp))
   out.nm      = file.path("results", gcm, rcp, paste(gcm, rcp, "glacier", var, "basins_m.csv", sep = "_"))
-  write.csv(a, out.nm)
+  
+  if(!file.exists(out.nm)){
+    raster.path = file.path(path.base, paste(gcm, "_", rcp, "_c2_ba1_100sets_2000_2100_m.nc", sep=""))
+    b = raster::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
+    a = raster::extract(b, shp, fun = sum,  na.rm = T, sp = F)
+    rownames(a) = shp.names
+    write.csv(a, out.nm)
+  }
   print(out.nm)
 }
 ##################################################################################################################################
@@ -57,6 +61,7 @@ gcms.4    = mods.4$GCM
 rcps.4    = colnames(mods.4)[2:ncol(mods.4)]
 
 mod.matrix = mapply(rep, gcms.4, length(rcps.4))
+mod.matrix = sub(" ", "", mod.matrix)
 
 # create output directories if they don't already exist
 mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.4)
