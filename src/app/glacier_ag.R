@@ -1,6 +1,7 @@
 # glacier_ag()
 
-# Main script for Glacier contributions to agriculture paper
+# Glacier contributions to agriculture paper: 
+#    Analysis: how much does glacier meltwater contribute to irrigation?
 # project: NASA HiMAT
 # Danielle S Grogan
 
@@ -107,7 +108,7 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
 ### MAIN ####
 #######################################################################################################################################
 
-# Inputs: same for all variables
+# Inputs needed for all analyses:
 basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
 map.dir   = "figures/"
 
@@ -195,9 +196,6 @@ for(s in scen){
   glacier_ag(mod, years, vars, path.base, path.out, basins)
   
 }
-
-
-
 
 
 # end of MAIN
