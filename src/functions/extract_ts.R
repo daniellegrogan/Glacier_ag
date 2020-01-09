@@ -11,7 +11,7 @@ library(rgeos)
 extract_ts = function(raster.path, # path to wbm output
                       shp,         # shapefile for spatial aggregation
                       var = NA,    # only needed if wbm output is monthly; variable name to load
-                      yrs = NA,    # sequence of years. If NA, all years are used
+                      years = NA,    # sequence of years. If NA, all years are used
                       s=1,         # sum = 1 (set to 0 for average spatial aggregation)
                       cell.area=1, 
                       weight=T, 
@@ -24,7 +24,8 @@ extract_ts = function(raster.path, # path to wbm output
       file.list = list.files(path = path, full.names = T)
     }else{
       file.list.full = list.files(path = raster.path, full.names = T)
-      file.list = file.list.full[sapply(years, FUN = function(x) grep(pattern=x, file.list.full))]
+      file.yrs = substr(file.list.full, start = nchar(file.list.full)-6, stop= nchar(file.list.full)-3)
+      file.list = file.list.full[as.numeric(file.yrs) %in% years]
     }
     brk = do.call(stack,
                   lapply(file.list, 
