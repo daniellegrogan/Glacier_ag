@@ -1,4 +1,4 @@
-# glacier_melt()  # CHECK FILE NAMING ISSUE
+# glacier_melt()  
 
 # Spatial aggregation of PyGEM model output: calculate glacier melt in km3/month for each basin
 # project: NASA HiMAT
