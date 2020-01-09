@@ -17,7 +17,7 @@ agg_contribution = function(path,          # path to wbm output
                             ){     
   
   if(grepl("monthly", c(path))){
-    basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, var, years))
+    basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, years, var))
     
     # for monthly
     # x30 to convert from ave/year to total per year

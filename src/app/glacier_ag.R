@@ -153,14 +153,15 @@ glacier_ag(mod, years, vars, path.base, path.out, basins)
 mod  = "CanESM2"
 scen = c("historical", "rcp26", "rcp45", "rcp85") 
 hist.yrs  = seq(2000, 2005) 
-early.yrs = seq(2006, 2039)
-mid.yrs   = seq(2040, 2069)
-late.yrs  = seq(2070, 2099)
-all.yrs = list(hist.yrs, early.yrs, mid.yrs, late.yrs)
+fut.yrs = seq(2006, 2099)
 
 for(s in scen){
   path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod, s)
-  years = unlist(all.yrs[which(scen == s)])
+  if(s == "historical"){
+    years = hist.yrs
+  }else{
+    years = fut.yrs
+  }
   path.out  = file.path("results", mod, s)
   
   # create file path for model-specific output, if it does not already exist.
