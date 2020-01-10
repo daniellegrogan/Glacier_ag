@@ -70,7 +70,16 @@ mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.4)
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.4)
 
 
+## 1c. for ERA_hist
+out.nm = file.path("results/ERA_hist", paste("ER_hist_glacier", var, "basins_m.csv", sep = "_"))
 
+if(!file.exists(out.nm)){
+  raster.path = file.path(path.base, "ERA-Interim_c2_ba1_100sets_1980_2017_m.nc")
+  b = raster::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
+  a = raster::extract(b, shp, fun = sum,  na.rm = T, sp = F)
+  rownames(a) = shp.names
+  write.csv(a, out.nm)
+}
 ##################################################################################################################################
 ### 2. Total glacier runoff
 var       = 'runoff'
@@ -102,3 +111,15 @@ mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.4)
 
 # spatial aggregation of glacier melt
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.4)
+
+
+## 2c. for ERA_hist
+out.nm = file.path("results/ERA_hist", paste("ER_hist_glacier_", var, "basins_m.csv", sep = "_"))
+
+if(!file.exists(out.nm)){
+  raster.path = file.path(path.base, "ERA-Interim_c2_ba1_100sets_1980_2017_m.nc")
+  b = raster::brick(raster.path, varname = var)*1e-9  # 1e-9 to convert from m3 to km3
+  a = raster::extract(b, shp, fun = sum,  na.rm = T, sp = F)
+  rownames(a) = shp.names
+  write.csv(a, out.nm)
+}
