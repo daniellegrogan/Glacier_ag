@@ -34,7 +34,7 @@ figure_3part = function(coastline,
   
   png(paste(map.dir, out.nm, ".png", sep=""), 
       height=6, width=7, units = 'in', res=300)
-  par(mar=c(8, 4, 0.5, 0.5))
+  par(mar=c(7, 4, 0.5, 0.5))
   plot(coastline.shadow,  xlim = xl, ylim = yl, border='grey90', lwd=4)
   plot(coastline,         xlim = xl, ylim = yl, border='grey70', col='white',  lwd=1, add=T)
   plot(glacier.icemelt,   add=T, col = p1,     legend=F,          box=F, axes=T, las=1)
@@ -47,19 +47,19 @@ figure_3part = function(coastline,
        legend.only=T, legend.width=0.4, horizontal=T, 
        smallplot=c(0.02, 0.28, 0.07, 0.09),
        axis.args=list(cex.axis=0.8),
-       legend.args=list(text='Glacier runoff (mm/year)', side=3, font=1, line=0.1, cex=1))
+       legend.args=list(text='Glacier ice melt (mm/year)', side=3, font=1, line=0.05, cex=0.8))
   
   plot(discharge.pgi, add=T, col = blues2, box=F, axes=T, las=1,
        legend.only=T, legend.width=0.4, horizontal=T, 
-       smallplot=c(0.33, 0.59, 0.07, 0.09),
+       smallplot=c(0.32, 0.62, 0.07, 0.09),
        axis.args=list(cex.axis=0.8),
-       legend.args=list(text='Glacier runoff in discharge (m3/s)', side=3, font=1, line=0.1, cex=1))
+       legend.args=list(text='Glacier ice melt in discharge (m3/s)', side=3, font=1, line=0.05, cex=0.8))
   
   plot(GrossIrr.pgi, add=T, col = g1, box=F, axes=T, las=1,
        legend.only=T, legend.width=0.4, horizontal=T, 
-       smallplot=c(0.7, 0.96, 0.07, 0.09),
+       smallplot=c(0.67, 0.97, 0.07, 0.09),
        axis.args=list(cex.axis=0.8),
-       legend.args=list(text='Glacier runoff in irrigation (mm/year)', side=3, font=1, line=0.1, cex=1))
+       legend.args=list(text='Glacier ice melt in irrigation (mm/year)', side=3, font=1, line=0.05, cex=0.8))
   
   axis(side = 1,
        at = xticks,
@@ -126,4 +126,46 @@ discharge.pgi.yc[discharge.pgi.yc < 0.05] = c(NA) # lower limit on discharge; el
 
 out.nm = "ERA_hist_yc_pgi_map"
 
+figure_3part(coastline, 
+             coastline.shaddow,
+             xl = c(59, 120), 
+             yl = c(9, 49), 
+             xticks,
+             yticks,
+             x.labs,
+             y.labs,
+             glacier.icemelt.yc, 
+             GrossIrr.pgi.yc, 
+             discharge.pgi.yc, 
+             basins,
+             out.dir = map.dir, 
+             out.nm)
 
+
+#######################################################################################################################################
+### Time series plots
+
+# plot time series for each basin
+plot.dir = "figures/"
+mod = "ERA_hist"
+icemelt.y = read.csv(file.path("results", mod, paste(mod, "_glacier_melt_basins_y.csv", sep="")))
+
+Year = seq(1980, 2016)
+for(i in 1:nrow(icemelt.y)){
+  png(paste(plot.dir, "GlacierIceMelt_annual_ts/" mod, "_glacierIceMelt_ts_", as.character(basin.names[i]), ".png", sep=""))
+  plot(Year, as.numeric(icemelt.y[i,2:ncol(icemelt.y)]), type='l', ylab = "Melt (km3)")
+  
+  lin.fit = summary(lm(as.numeric(icemelt.y[i,2:ncol(icemelt.y)]) ~ Year))
+  if(sum(as.numeric(icemelt.y[i,2:ncol(icemelt.y)])) > 0){  # NB: Luni_ext has no melt
+    
+    if(lin.fit$coefficients[,4][2] < 0.01){
+      abline(lin.fit, col='blue', lty=2)
+      mtext(paste("Slope =", signif(lin.fit$coefficients[,1][2], 2)), side=3, adj = 1)
+    }else{
+      abline(lin.fit, col='grey', lty=2)
+    }
+    
+  }
+  
+  dev.off()
+}
