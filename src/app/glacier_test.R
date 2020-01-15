@@ -81,11 +81,11 @@ test_2_format = function(infile){
 # 4. glVolume (y)
 
 vars = c("runoff", "melt", "area_frac", "volume")
-#######################################################################################################################################
-# Test 1: 0 glacier melt during spin-up year 1970, and glacier melt input through the historical period (1980 - 2016)
-
 path = "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset/"
 file.base = "ERA-Interim_c2_ba1_100sets_1980_2017_"
+
+#######################################################################################################################################
+# Test 1: 0 glacier melt during spin-up year 1970, and glacier melt input through the historical period (1980 - 2016)
 
 for(v in vars){
   if(v == "runoff" | v == "melt"){
