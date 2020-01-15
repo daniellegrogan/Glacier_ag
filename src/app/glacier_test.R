@@ -20,7 +20,7 @@ prepend_year_zeros = function(infile){
   # nb: infile must start at the beginning of a year (may need to subset input before using function)
   
   # format layer names as dates
-  format_brick_dates(infile)
+  date.layers = format_brick_dates(infile)
   year.layers = as.numeric(substr(start = 1, stop = 4, date.layers))
   
   # subset to one year
@@ -107,9 +107,9 @@ for(v in vars){
   # format layer names as dates, use to subset input file
   date.layers = format_brick_dates(infile)
   year.layers = as.numeric(substr(start = 1, stop = 4, date.layers))
-  infile  = subset(infile, which(year.layers > 1979))
+  infile.sub  = subset(infile, which(year.layers > 1979))
   
-  outfile = prepend_year_zeros(infile)
+  outfile = prepend_year_zeros(infile.sub)
   out.nm = paste(path, "TEST_1_1979_2016_", v, "_", ts, ".nc", sep="")
   writeRaster(outfile, 
               out.nm, 
