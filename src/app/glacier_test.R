@@ -93,7 +93,7 @@ for(v in vars){
     time.unit = "monthly"
     unit = "m3/month"
   }else if(v == "area_frac" | v == "volume"){
-    ts = "m"
+    ts = "y"
     time.unit = "yearly"
     if(v == "area_frac"){
       unit = "fraction"
@@ -135,7 +135,7 @@ for(v in vars){
     time.unit = "monthly"
     unit = "m3/month"
   }else if(v == "area_frac" | v == "volume"){
-    ts = "m"
+    ts = "y"
     time.unit = "yearly"
     if(v == "area_frac"){
       unit = "fraction"
