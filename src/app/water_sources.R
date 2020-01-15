@@ -93,3 +93,6 @@ for(v in 1:length(vars)){
   print(vars[v])
 }
 
+years = seq(2006, 2099)
+water_agg(gcm = "CanESM2", rcp = "rcp85", path.base, var = "runoff", years, shp, shp.names)
+lapply(vars, FUN = function(x) water_agg(gcm = "CanESM2", rcp = "rcp85", path.base, x, years, shp, shp.names))
