@@ -18,19 +18,19 @@ eval(parse(text=wbm_load.script))
 
 
 ########################################################################################
-test_tracking_mm = function(path, sum.var, component.vars){
+test_tracking_mm = function(path, sum.var, component.vars, years){
   read.vars = lapply(component.vars, FUN = function(x) wbm_load(path, x, years))
-  read.sum = bm_load(path, sum.var, years)
+  read.sum = wbm_load(path, sum.var, years)
   
   for(i in 1:nlayers(read.vars[[1]])){
-    component.sum = subset(read.vars[[1]],i) + subset(read.vars[[2]],i) + subset(read.vars[[3]],i) + subset(read.vars[[4]],i) + subset(read.vars[[5]],i)
+    component.sum = subset(read.vars[[1]],i) + subset(read.vars[[2]],i)
     check.diff = subset(read.sum, i) - component.sum
     
     a = round(min(as.matrix(check.diff), na.rm=T), 6)
     b = round(max(as.matrix(check.diff), na.rm=T), 6)
     
     if(a != 0 | b != 0){
-      print(paste("FAIL: sum != 0 on layer", i))
+      print(paste("FAIL: diff != 0 on layer", i, " min =", a, "; max = ", b))
     }else{
       print(paste("layer", i, "good"))
     }
