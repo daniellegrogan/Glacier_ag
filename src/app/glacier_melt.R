@@ -56,7 +56,7 @@ glacier_melt_y = function(mod, rcp){
   icemelt.y = t(aggregate(t(icemelt.m), by=list(yrs), sum))[2:16,]
   icemelt.y = cbind(as.character(basin.names), icemelt.y)
   colnames(icemelt.y) = c("Basin", years)
-  write.table(icemelt.y, out.nm)
+  write.table(icemelt.y, out.nm, sep=",")
 }
 ##################################################################################################################################
 
