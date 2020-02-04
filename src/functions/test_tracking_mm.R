@@ -19,11 +19,24 @@ eval(parse(text=wbm_load.script))
 
 ########################################################################################
 test_tracking_mm = function(path, sum.var, component.vars, years){
-  read.vars = lapply(component.vars, FUN = function(x) wbm_load(path, x, years))
-  read.sum = wbm_load(path, sum.var, years)
-  
+  if(grepl("daily", path)){
+    read.vars = lapply(component.vars, FUN = function(x) wbm_load(path, x, years))
+    read.sum = wbm_load(path, sum.var, years)
+  }else if(grepl("monthly", path)){
+    read.vars = lapply(component.vars, FUN = function(x) wbm_load(file.path(path, x), x, years))
+    read.sum = wbm_load(file.path(path, sum.var), sum.var, years)
+  }
+ 
   for(i in 1:nlayers(read.vars[[1]])){
-    component.sum = subset(read.vars[[1]],i) + subset(read.vars[[2]],i)
+    for(j in 1:length(component.vars)){
+      component.sub = subset(read.vars[[j]],i)
+      if(j==1){
+        component.sum = component.sub
+      }else{
+        component.sum = component.sum + component.sub
+      }
+    }
+    
     check.diff = subset(read.sum, i) - component.sum
     
     a = round(min(as.matrix(check.diff), na.rm=T), 6)
