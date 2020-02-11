@@ -66,17 +66,16 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   out.var = sub("mm_", "", c(vars[2]))
  
   # 1. annual contribution
-  out.nm.pre = paste(path.out, "/", mod, "_basin_", sep="")
+  out.nm.pre = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", sep="")
   basin.agg.pgi = agg_contribution(path.yr, basins, vars, years, percent.nm, out.nm.pre)
-  out.nm = paste(path.out, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_yearly_stats.csv", sep="")
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_yearly_stats.csv", sep="")
   write.table(basin.agg.pgi, 
               out.nm,
               sep=",")
   
   # 2. monthly contribution (NB: this step takes a long time)
-  out.nm.pre = paste(path.out, "/", mod, "_basin_", sep="")
   basin.agg.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm, out.nm.pre) 
-  out.nm = paste(path.out, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_monthly_stats.csv", sep="")
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_monthly_stats.csv", sep="")
   write.table(basin.agg.pgi.m, 
               out.nm,
               sep=",")
@@ -87,7 +86,7 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   irr_pgi_max_month = max_month(var.m = basin.agg.pgi.m,
                                 var   = v_suffix,
                                 unit  = "km3")
-  out.nm = paste(path.out, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_km3_month_max.csv", sep="")
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_km3_month_max.csv", sep="")
   write.table(irr_pgi_max_month, 
               out.nm,
               quote = F,
@@ -97,7 +96,7 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   irr_pgi_max_month.percent = max_month(var.m = basin.agg.pgi.m,
                                         var   = v_suffix,
                                         unit  = "percent")
-  out.nm = paste(path.out, "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_percent_month_max.csv", sep="")
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_percent_month_max.csv", sep="")
   write.table(irr_pgi_max_month, 
               out.nm,
               quote = F,
@@ -114,7 +113,7 @@ basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
 
 ############ HISTORICAL ################
 mod = "ERA_hist"
-path.out  = file.path("results", mod)
+path.out  = "results"
 path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod)
 years = seq(1980, 2016)  # full historical time series
 
@@ -123,9 +122,9 @@ years = seq(1980, 2016)  # full historical time series
 #     _pgn := glacier non-ice runoff (e.g., rain on the glacier)
 
 # 1. Ice melt (pgi) component in irrigation
-# vars = c("irrigationGross",
-#          "GrossIrr_mm_pgi")
-# glacier_ag(mod, years, vars, path.base, path.out, basins)
+vars = c("irrigationGross",
+         "GrossIrr_mm_pgi")
+glacier_ag(mod, years, vars, path.base, path.out, basins)
 
 vars = c("irrigationFlow",
          "IrrFlow_mm_pgi")
@@ -141,13 +140,13 @@ glacier_ag(mod, years, vars, path.base, path.out, basins)
 #          "GrossIrr_mm_pgn")
 # glacier_ag(mod, years, vars, path.base, path.out, basins)
 
-vars = c("irrigationFlow",
-         "IrrFlow_mm_pgn")
-glacier_ag(mod, years, vars, path.base, path.out, basins)
-
-vars = c("irrigationGrwt",
-         'IrrGrwt_mm_pgn')
-glacier_ag(mod, years, vars, path.base, path.out, basins)
+# vars = c("irrigationFlow",
+#          "IrrFlow_mm_pgn")
+# glacier_ag(mod, years, vars, path.base, path.out, basins)
+# 
+# vars = c("irrigationGrwt",
+#          'IrrGrwt_mm_pgn')
+# glacier_ag(mod, years, vars, path.base, path.out, basins)
 
 
 ############ FUTURE ################
