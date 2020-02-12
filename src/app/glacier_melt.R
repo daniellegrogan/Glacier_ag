@@ -19,7 +19,7 @@ eval(parse(text=create_dir.script))
 glacier_agg = function(gcm, rcp, path.base, var, shp, shp.names){
   gcm = as.character(sub(" ", "", gcm))
   rcp = as.character(sub(" ", "", rcp))
-  out.nm      = file.path("results", gcm, rcp, paste(gcm, rcp, "glacier", var, "basins_m.csv", sep = "_"))
+  out.nm      = paste("results/Glacier_ice_melt/", gcm, "_", rcp, "_glacier_", var, "_basins_monthly.csv", sep = "")
   
   if(!file.exists(out.nm)){
     raster.path = file.path(path.base, paste(gcm, "_", rcp, "_c2_ba1_100sets_2000_2100_m.nc", sep=""))
@@ -36,14 +36,12 @@ glacier_melt_y = function(mod, rcp){
   hist.yrs = seq(1980, 2016)
   fut.yrs  = seq(2000, 2099)
   
+  icemelt.m = read.csv(paste("results/Glacier_ice_melt/", mod, "_", rcp, "_glacier_", var, "_basins_monthly.csv", sep = ""))
+  out.nm = paste("results/Glacier_ice_melt/", mod, "_", rcp, "_glacier_", var, "_basins_yearly.csv", sep = "")
   if(mod == "ERA_hist"){
     years = hist.yrs
-    icemelt.m = read.csv(file.path("results", mod, paste(mod, "_glacier_melt_basins_m.csv", sep="")))
-    out.nm = file.path("results", mod, paste(mod, "_glacier_melt_basins_y.csv", sep=""))
   }else{
     years = fut.yrs
-    icemelt.m = read.csv(file.path("results", mod, rcp, paste(mod, "_", rcp, "_glacier_melt_basins_m.csv", sep="")))
-    out.nm = file.path("results", mod, rcp, paste(mod, "_", rcp, "_glacier_melt_basins_y.csv", sep=""))
   }
   
   basin.names = icemelt.m[,1]
@@ -77,9 +75,6 @@ rcps.3    = colnames(mods.3)[2:ncol(mods.3)]
 
 mod.matrix = mapply(rep, gcms.3, length(rcps.3))
 
-# create output directories if they don't already exist
-mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.3)
-
 # spatial aggregation of glacier melt
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.3)
 mapply(function(x,y) glacier_melt_y(x, y), mod.matrix, rcps.3)
@@ -92,8 +87,6 @@ rcps.4    = colnames(mods.4)[2:ncol(mods.4)]
 mod.matrix = mapply(rep, gcms.4, length(rcps.4))
 mod.matrix = sub(" ", "", mod.matrix)
 
-# create output directories if they don't already exist
-mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.4)
 
 # spatial aggregation of glacier melt
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.4)
@@ -101,7 +94,7 @@ mapply(function(x,y) glacier_melt_y(x, y), mod.matrix, rcps.4)
 
 
 ## 1c. for ERA_hist
-out.nm = file.path("results/ERA_hist", paste("ERA_hist_glacier", var, "basins_m.csv", sep = "_"))
+out.nm = file.path("results/Glacier_ice_melt", paste("ERA_hist_glacier", var, "basins_m.csv", sep = "_"))
 
 if(!file.exists(out.nm)){
   raster.path = file.path(path.base, "ERA-Interim_c2_ba1_100sets_1980_2017_m.nc")
@@ -122,9 +115,6 @@ rcps.3    = colnames(mods.3)[2:ncol(mods.3)]
 
 mod.matrix = mapply(rep, gcms.3, length(rcps.3))
 
-# create output directories if they don't already exist
-mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.3)
-
 # spatial aggregation of glacier melt
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.3)
 
@@ -137,15 +127,12 @@ rcps.4    = colnames(mods.4)[2:ncol(mods.4)]
 
 mod.matrix = mapply(rep, gcms.4, length(rcps.4))
 
-# create output directories if they don't already exist
-mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix, rcps.4)
-
 # spatial aggregation of glacier melt
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.4)
 
 
 ## 2c. for ERA_hist
-out.nm = file.path("results/ERA_hist", paste("ERA_hist_glacier_", var, "basins_m.csv", sep = "_"))
+out.nm = file.path("results/Glacier_ice_melt", paste("ERA_hist_glacier_", var, "_basins_monthly.csv", sep = ""))
 
 if(!file.exists(out.nm)){
   raster.path = file.path(path.base, "ERA-Interim_c2_ba1_100sets_1980_2017_m.nc")

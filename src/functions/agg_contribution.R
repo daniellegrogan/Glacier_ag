@@ -18,10 +18,13 @@ agg_contribution = function(path,          # path to wbm output
   
   if(grepl("monthly", c(path))){
     basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, years, var))
+    #basin.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path, var), shp = basins, years, var))
     
     # for monthly
-    # x30 to convert from ave/year to total per year
-    basin.array = 30*array(as.numeric(unlist(basin.agg)), dim=c(nrow(basin.agg[[1]]), ncol(basin.agg[[1]]), length(vars)))
+    # x days-per-month to convert from ave/month to total per month
+    month.data = read.csv("data/days_in_months.csv")
+    
+    basin.array = month.data$days*array(as.numeric(unlist(basin.agg)), dim=c(nrow(basin.agg[[1]]), ncol(basin.agg[[1]]), length(vars)))
     gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
     basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
     

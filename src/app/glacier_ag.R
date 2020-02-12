@@ -49,6 +49,7 @@ sapply(file.sources, source)
 # writes 10 csv files for each pair of input vars
 
 glacier_ag = function(mod,          # character string: name of model, e.g., "ERA_hist" or "MIROC5"
+                      rcp,          # character string: one of "historical", "rcp45", or "rcp85"
                       years,        # vector of years over which to process, e.g., seq(2000, 2005)
                       vars,         # list of 2 character strings, matching variables. e.g., c("irrigationGross", "GrossIrr_mm_pgi")
                       path.base,    # character string: path to model output, e.g., "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12"
@@ -66,16 +67,23 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   out.var = sub("mm_", "", c(vars[2]))
  
   # 1. annual contribution
-  out.nm.pre = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", sep="")
+  if(mod == "ERA_hist"){
+    m.char = mod
+  }else{
+    m.char = paste(mod, "_", rcp, sep="")
+  }
+  
+  out.nm.pre = paste(path.out, "/Irrigation/", vars[1], "/", m.char, "_basin_", sep="")
+  out.nm     = paste(path.out, "/Irrigation/", vars[1], "/", m.char, "_basin_", out.var, "_",  min(years), "_", max(years), "_yearly_stats.csv", sep="")
+  
   basin.agg.pgi = agg_contribution(path.yr, basins, vars, years, percent.nm, out.nm.pre)
-  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_yearly_stats.csv", sep="")
   write.table(basin.agg.pgi, 
               out.nm,
               sep=",")
   
   # 2. monthly contribution (NB: this step takes a long time)
   basin.agg.pgi.m = agg_contribution(path.mo, basins, vars, years, percent.nm, out.nm.pre) 
-  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_monthly_stats.csv", sep="")
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", m.char, "_basin_", out.var, "_",  min(years), "_", max(years), "_monthly_stats.csv", sep="")
   write.table(basin.agg.pgi.m, 
               out.nm,
               sep=",")
@@ -86,7 +94,7 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   irr_pgi_max_month = max_month(var.m = basin.agg.pgi.m,
                                 var   = v_suffix,
                                 unit  = "km3")
-  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_km3_month_max.csv", sep="")
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", m.char, "_basin_", out.var, "_",  min(years), "_", max(years), "_km3_month_max.csv", sep="")
   write.table(irr_pgi_max_month, 
               out.nm,
               quote = F,
@@ -96,8 +104,8 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   irr_pgi_max_month.percent = max_month(var.m = basin.agg.pgi.m,
                                         var   = v_suffix,
                                         unit  = "percent")
-  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", mod, "_basin_", out.var, "_",  min(years), "_", max(years), "_percent_month_max.csv", sep="")
-  write.table(irr_pgi_max_month, 
+  out.nm = paste(path.out, "/Irrigation/", vars[1], "/", m.char, "_basin_", out.var, "_",  min(years), "_", max(years), "_percent_month_max.csv", sep="")
+  write.table(irr_pgi_max_month.percent, 
               out.nm,
               quote = F,
               sep=",")
@@ -116,6 +124,7 @@ mod = "ERA_hist"
 path.out  = "results"
 path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod)
 years = seq(1980, 2016)  # full historical time series
+r = 'historical'
 
 # Inputs: variable pairs for which to calculate contributions
 # NB  _pgi := glacier ice melt. 
@@ -124,15 +133,15 @@ years = seq(1980, 2016)  # full historical time series
 # 1. Ice melt (pgi) component in irrigation
 vars = c("irrigationGross",
          "GrossIrr_mm_pgi")
-glacier_ag(mod, years, vars, path.base, path.out, basins)
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
 
 vars = c("irrigationFlow",
          "IrrFlow_mm_pgi")
-glacier_ag(mod, years, vars, path.base, path.out, basins)
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
 
 vars = c("irrigationGrwt",
          'IrrGrwt_mm_pgi')
-glacier_ag(mod, years, vars, path.base, path.out, basins)
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
 
 
 # 2. Glacier runoff (pgn) component in irrigation
@@ -150,50 +159,35 @@ glacier_ag(mod, years, vars, path.base, path.out, basins)
 
 
 ############ FUTURE ################
-mod  = "CanESM2"
-scen = c("historical", "rcp26", "rcp45", "rcp85") 
+mods  = c("CCSM4", "MIROC5")
+rcp = c("historical", "rcp26", "rcp45", "rcp85") 
 hist.yrs  = seq(2000, 2005) 
 fut.yrs = seq(2006, 2099)
 
-for(s in scen){
-  path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod, s)
-  if(s == "historical"){
-    years = hist.yrs
-  }else{
-    years = fut.yrs
+path.out  = "results"
+
+for(mod in mods){
+  for(r in rcp){
+    path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod, s)
+    if(r == "historical"){
+      years = hist.yrs
+    }else{
+      years = fut.yrs
+    }
+    
+    # 1. Ice melt (pgi) component in irrigation
+    vars = c("irrigationGross",
+             "GrossIrr_mm_pgi")
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    vars = c("irrigationFlow",
+             "IrrFlow_mm_pgi")
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    vars = c("irrigationGrwt",
+             'IrrGrwt_mm_pgi')
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
   }
-  path.out  = file.path("results", mod, s)
-  
-  # create file path for model-specific output, if it does not already exist.
-  create_dir(file.path("results", mod, s))
-  
-  # 1. Ice melt (pgi) component in irrigation
-  vars = c("irrigationGross",
-           "GrossIrr_mm_pgi")
-  glacier_ag(mod, years, vars, path.base, path.out, basins)
-  
-  vars = c("irrigationFlow",
-           "IrrFlow_mm_pgi")
-  glacier_ag(mod, years, vars, path.base, path.out, basins)
-  
-  vars = c("irrigationGrwt",
-           'IrrGrwt_mm_pgi')
-  glacier_ag(mod, years, vars, path.base, path.out, basins)
-  
-  
-  # 2. Glacier runoff (pgn) component in irrigation
-  vars = c("irrigationGross",
-           "GrossIrr_mm_pgn")
-  glacier_ag(mod, years, vars, path.base, path.out, basins)
-  
-  vars = c("irrigationFlow",
-           "IrrFlow_mm_pgn")
-  glacier_ag(mod, years, vars, path.base, path.out, basins)
-  
-  vars = c("irrigationGrwt",
-           'IrrGrwt_mm_pgn')
-  glacier_ag(mod, years, vars, path.base, path.out, basins)
-  
 }
 
 
@@ -201,21 +195,3 @@ for(s in scen){
 #######################################################################################################################################
 
 # sandbox:
-
-# # inputs needed to identify basin mouths - not used yet
-# basin.ID = raster(file.path(netwk.path, "HiMAT_full_210_IDs_Subset.asc"))
-# up.area  = raster(file.path(netwk.path,"flowdirection210_upstrArea.asc"))
-# 
-# # find IDs for exorheic basins
-# ex.basins = basin.shape[basin.shape$name == "Ganges" |
-#                           basin.shape$name == "Mekong" |
-#                           basin.shape$name == "Irawaddy" |
-#                           basin.shape$name == "Luni_ext" |
-#                           basin.shape$name == "Indus" |
-#                           basin.shape$name == "Brahmaputra" |
-#                           basin.shape$name == "Salween" |
-#                           basin.shape$name == "Yangtze" |
-#                           basin.shape$name == "Yellow",]
-
-# netwk.path = "/net/nfs/zero/data3/WBM_TrANS/data"
-
