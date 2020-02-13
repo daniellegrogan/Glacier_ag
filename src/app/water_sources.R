@@ -27,31 +27,53 @@ file.sources = list.files("src/functions", full.names = T)
 sapply(file.sources, source)
 
 ##################################################################################################################################
-water_agg = function(gcm, rcp, path.base, var, years, shp, shp.names){
-  gcm = as.character(sub(" ", "", gcm))
-  rcp = as.character(sub(" ", "", rcp))
-  out.nm      = file.path("results", gcm, rcp, paste(gcm, rcp, var, "basins_km3_m.csv", sep = "_"))
+water_agg = function(gcm, rcp, path.base, var, shp, shp.names){
+  
+  if(gcm == "ERA_hist"){
+    out.nm      = paste(file.path("results", var), paste("/ERA_hist_basin", var, "km3_monthly.csv", sep = "_"), sep="")
+    raster.path = file.path(path.base, paste("ERA_hist/monthly/", var, sep=""))
+  }else{
+    gcm = as.character(sub(" ", "", gcm))
+    rcp = as.character(sub(" ", "", rcp))
+    out.nm      = paste(file.path("results", var), paste("/", gcm, "_", rcp, "_basin_", var, "_km3_monthly.csv", sep = ""), sep="")
+    raster.path = file.path(path.base, gcm, rcp, "monthly")
+  }
   
   if(!file.exists(out.nm)){
-   
+    
     hist.yrs  = seq(2000, 2005) 
     fut.yrs = seq(2006, 2099)
-    if(rcp == "historical"){
+    ERA.yrs = seq(1980, 2016)
+    if(gcm == "ERA_hist"){
+      years = ERA.yrs
+    }else if(rcp == "historical"){
       years = hist.yrs
     }else{
       years = fut.yrs
     }
       
-    raster.path = file.path(path.base, gcm, rcp, "monthly")
-    data.agg = extract_ts(raster.path, shp, years, var)*30   # x30 to convert from ave mm/day to mm/month
+    month.data = read.csv("data/days_in_months.csv")
+    data.agg = extract_ts(raster.path, shp, years, var)*month.data$days   # x month.data$days to convert from ave mm/day to mm/month
     
     month.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
                       to   = as.Date(paste(max(years), "-12-01", sep="")), 
                       by   = "month")
     colnames(data.agg) = as.character(month.cols)
     rownames(data.agg) = c(as.character(shp.names), "all_basins")
+    
+    # aggregate to yearly
+    year.cols = as.numeric(substr(colnames(data.agg), start = 1, stop = 4))
+    data.yr = data.frame(matrix(nr=nrow(data.agg), nc=length(years)))
+    rownames(data.yr) = rownames(data.agg)
+    colnames(data.yr) = unique(year.cols)
+    for(i in 1:length(years)){
+      data.sub = subset(data.agg, select = c(year.cols == years[i]))
+      data.yr[,i] = rowSums(data.sub)
+    }
+    out.nm.yr = sub("monthly", "yearly", c(out.nm))
 
     write.csv(data.agg, out.nm)
+    write.csv(data.yr, out.nm.yr)
   }
   print(out.nm)
 }
@@ -64,6 +86,28 @@ shp       = basins
 shp.names = basins$name
 
 ##################################################################################################################################
+### Variables to aggregate
+vars  = c('runoff', 'irrRunoff', 'snowMelt', 'precip', 'irrigationGrwt', 'irrigationExtra', 'glMelt', 'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_mm_pgi')
+
+# create output directories if they don't already exist
+lapply(vars, FUN = function(x) create_dir(file.path("results", x)))
+lapply(vars, FUN = function(x) water_agg(gcm = 'ERA_hist', 
+                                         rcp = "NA", 
+                                         path.base, 
+                                         var = x, 
+                                         shp = basins, 
+                                         shp.names = basins$name))
+
+gcms = c("CCSM4", "MIROC5")
+for(g in gcms){
+  lapply(vars, FUN = function(x) water_agg(gcm = g, 
+                                           rcp = "historical", 
+                                           path.base, 
+                                           var = x, 
+                                           shp = basins, 
+                                           shp.names = basins$name))
+}
+
 
 # Set up matrices of inputs for GCMs x RCPs
 ## 3-RCP set of models
@@ -80,12 +124,6 @@ rcps.4       = colnames(mods.4)[2:ncol(mods.4)]
 rcps.4       = c("historical", rcps.4)
 mod.matrix.4 = mapply(rep, gcms.4, length(rcps.4))
 
-# create output directories if they don't already exist
-mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix.3, rcps.3)
-mapply(function(x,y) create_dir(file.path("results", x, y)), mod.matrix.4, rcps.4)
-
-### Variables to aggregate
-vars  = c('runoff', 'irrRunoff', 'snowMelt', 'precip', 'irrigationGrwt', 'glMelt', 'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_pgi')
 
 for(v in 1:length(vars)){
   mapply(function(x,y) water_agg(x, y, path.base, vars[v], years, shp, shp.names), mod.matrix.3, rcps.3)

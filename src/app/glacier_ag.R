@@ -90,7 +90,8 @@ glacier_ag = function(mod,          # character string: name of model, e.g., "ER
   
   
   # 3. Calculate month of max km3
-  v_suffix = substr(start = nchar(vars[2])-2, stop = nchar(vars[2]), vars[2])
+  s = unlist(strsplit(vars[2], "_"))
+  v_suffix = s[length(s)]
   irr_pgi_max_month = max_month(var.m = basin.agg.pgi.m,
                                 var   = v_suffix,
                                 unit  = "km3")
@@ -145,17 +146,30 @@ glacier_ag(mod, r, years, vars, path.base, path.out, basins)
 
 
 # 2. Glacier runoff (pgn) component in irrigation
-# vars = c("irrigationGross",
-#          "GrossIrr_mm_pgn")
-# glacier_ag(mod, years, vars, path.base, path.out, basins)
+vars = c("irrigationGross",
+         "GrossIrr_mm_pgn")
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
 
-# vars = c("irrigationFlow",
-#          "IrrFlow_mm_pgn")
-# glacier_ag(mod, years, vars, path.base, path.out, basins)
-# 
-# vars = c("irrigationGrwt",
-#          'IrrGrwt_mm_pgn')
-# glacier_ag(mod, years, vars, path.base, path.out, basins)
+vars = c("irrigationFlow",
+         "IrrFlow_mm_pgn")
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+
+vars = c("irrigationGrwt",
+         'IrrGrwt_mm_pgn')
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+
+# 3. Snow melt (ps) component in irrigation
+vars = c("irrigationGross",
+         "GrossIrr_mm_ps")
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+
+vars = c("irrigationFlow",
+         "IrrFlow_mm_ps")
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+
+vars = c("irrigationGrwt",
+         'IrrGrwt_mm_ps')
+glacier_ag(mod, r, years, vars, path.base, path.out, basins)
 
 
 ############ FUTURE ################
@@ -168,7 +182,7 @@ path.out  = "results"
 
 for(mod in mods){
   for(r in rcp){
-    path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod, s)
+    path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod, r)
     if(r == "historical"){
       years = hist.yrs
     }else{
@@ -187,6 +201,33 @@ for(mod in mods){
     vars = c("irrigationGrwt",
              'IrrGrwt_mm_pgi')
     glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    # 2. Glacier runoff (pgn) component in irrigation
+    vars = c("irrigationGross",
+             "GrossIrr_mm_pgn")
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    vars = c("irrigationFlow",
+             "IrrFlow_mm_pgn")
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    vars = c("irrigationGrwt",
+             'IrrGrwt_mm_pgn')
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    # 3. Snow melt (ps) component in irrigation
+    vars = c("irrigationGross",
+             "GrossIrr_mm_ps")
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    vars = c("irrigationFlow",
+             "IrrFlow_mm_ps")
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+    
+    vars = c("irrigationGrwt",
+             'IrrGrwt_mm_ps')
+    glacier_ag(mod, r, years, vars, path.base, path.out, basins)
+  
   }
 }
 

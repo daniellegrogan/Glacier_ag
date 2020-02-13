@@ -17,9 +17,13 @@ agg_contribution = function(path,          # path to wbm output
                             ){     
   
   if(grepl("monthly", c(path))){
-    basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, years, var))
-    #basin.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path, var), shp = basins, years, var))
     
+    if(grepl("ERA_hist", path)){
+      basin.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path, var), shp = basins, years, var))
+    }else{
+      basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, years, var))
+    }
+
     # for monthly
     # x days-per-month to convert from ave/month to total per month
     month.data = read.csv("data/days_in_months.csv")
