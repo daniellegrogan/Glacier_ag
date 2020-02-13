@@ -7,6 +7,7 @@
 ### R Libraries
 library(RCurl)  # enables sourcing R code from github
 library(raster)
+rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
 library(rgdal)
 library(rgeos)
 
@@ -126,11 +127,12 @@ mod.matrix.4 = mapply(rep, gcms.4, length(rcps.4))
 
 
 for(v in 1:length(vars)){
-  mapply(function(x,y) water_agg(x, y, path.base, vars[v], years, shp, shp.names), mod.matrix.3, rcps.3)
-  mapply(function(x,y) water_agg(x, y, path.base, vars[v], years, shp, shp.names), mod.matrix.4, rcps.4)
+  mapply(function(x,y) water_agg(x, y, path.base, vars[v], shp, shp.names), mod.matrix.3, rcps.3)
+  mapply(function(x,y) water_agg(x, y, path.base, vars[v], shp, shp.names), mod.matrix.4, rcps.4)
   print(vars[v])
 }
 
-years = seq(2006, 2099)
-#water_agg(gcm = "CanESM2", rcp = "rcp85", path.base, var = "runoff", years, shp, shp.names)
-lapply(vars, FUN = function(x) water_agg(gcm = "CanESM2", rcp = "rcp85", path.base, x, years, shp, shp.names))
+# one gcm at a time
+lapply(vars, FUN = function(x) water_agg(gcm = "CCSM4", rcp = "rcp45", path.base, x, shp, shp.names))
+
+

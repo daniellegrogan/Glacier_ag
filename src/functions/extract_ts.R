@@ -5,6 +5,7 @@
 # Danielle S Grogan
 
 library(raster)
+rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
 library(rgdal)
 library(rgeos)
 

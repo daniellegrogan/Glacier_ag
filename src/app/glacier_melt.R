@@ -7,6 +7,7 @@
 ### R Libraries
 library(RCurl)  # enables sourcing R code from github
 library(raster)
+rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
 library(rgdal)
 library(rgeos)
 
