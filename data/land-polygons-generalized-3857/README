@@ -1,0 +1,83 @@
+
+This data was downloaded from openstreetmapdata.com which offers
+extracts and processings of OpenStreetMap data.
+
+See http://openstreetmapdata.com/ for details.
+
+
+PACKAGE CONTENT
+===============
+
+This package contains OpenStreetMap data of the
+generalized coastline land polygons
+
+Layers contained are:
+
+land_polygons_z1.shp:
+
+  243 Polygon features
+  Mercator projection
+  Extent: (-20154915, -20154915) - (20154916, 18439112)
+
+land_polygons_z2.shp:
+
+  313 Polygon features
+  Mercator projection
+  Extent: (-20154915, -20154915) - (20154916, 18436454)
+
+land_polygons_z3.shp:
+
+  996 Polygon features
+  Mercator projection
+  Extent: (-20076643, -20076643) - (20076644, 18445721)
+
+land_polygons_z4.shp:
+
+  2346 Polygon features
+  Mercator projection
+  Extent: (-20057075, -20057075) - (20057076, 18449380)
+
+land_polygons_z5.shp:
+
+  5816 Polygon features
+  Mercator projection
+  Extent: (-20047291, -20047291) - (20047292, 18460926)
+
+land_polygons_z6.shp:
+
+  11797 Polygon features
+  Mercator projection
+  Extent: (-20042399, -20042399) - (20042400, 18461535)
+
+land_polygons_z7.shp:
+
+  13645 Polygon features
+  Mercator projection
+  Extent: (-20042399, -20042399) - (20042400, 18461071)
+
+land_polygons_z8.shp:
+
+  27976 Polygon features
+  Mercator projection
+  Extent: (-20039953, -20039953) - (20039954, 18461351)
+
+Date of the data used is 12 Nov 2018 04:47
+
+You can find more information on this data set at
+
+http://openstreetmapdata.com/data/generalized-coastlines
+
+
+LICENSE
+=======
+
+These files may be used under the terms of the
+Creative Commons Attribution-ShareAlike 4.0 license:
+
+http://creativecommons.org/licenses/by-sa/4.0/
+
+They are based on data that is Copyright 2018 OpenStreetMap contributors
+and which is available under the Open Database License (ODbL).
+
+For more information see http://www.openstreetmap.org/copyright
+
