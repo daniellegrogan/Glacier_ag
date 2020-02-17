@@ -88,7 +88,7 @@ shp.names = basins$name
 
 ##################################################################################################################################
 ### Variables to aggregate
-vars  = c('runoff', 'irrRunoff', 'snowMelt', 'precip', 'irrigationGrwt', 'irrigationExtra', 'glMelt', 'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_mm_pgi')
+vars  = c('runoff', 'irrRunoff', 'snowMelt', 'snowFall', 'precip', 'irrigationGrwt', 'irrigationExtra', 'glMelt', 'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_mm_pgi')
 
 # create output directories if they don't already exist
 lapply(vars, FUN = function(x) create_dir(file.path("results", x)))
@@ -99,15 +99,6 @@ lapply(vars, FUN = function(x) water_agg(gcm = 'ERA_hist',
                                          shp = basins, 
                                          shp.names = basins$name))
 
-gcms = c("CCSM4", "MIROC5")
-for(g in gcms){
-  lapply(vars, FUN = function(x) water_agg(gcm = g, 
-                                           rcp = "historical", 
-                                           path.base, 
-                                           var = x, 
-                                           shp = basins, 
-                                           shp.names = basins$name))
-}
 
 
 # Set up matrices of inputs for GCMs x RCPs
@@ -133,7 +124,11 @@ for(v in 1:length(vars)){
 }
 
 # one gcm at a time
+lapply(vars, FUN = function(x) water_agg(gcm = "MIROC5", rcp = "historical", path.base, x, shp, shp.names))
 lapply(vars, FUN = function(x) water_agg(gcm = "MIROC5", rcp = "rcp45", path.base, x, shp, shp.names))
 lapply(vars, FUN = function(x) water_agg(gcm = "MIROC5", rcp = "rcp85", path.base, x, shp, shp.names))
 
-
+# one gcm at a time
+lapply(vars, FUN = function(x) water_agg(gcm = "CCSM4", rcp = "historical", path.base, x, shp, shp.names))
+lapply(vars, FUN = function(x) water_agg(gcm = "CCSM4", rcp = "rcp45", path.base, x, shp, shp.names))
+lapply(vars, FUN = function(x) water_agg(gcm = "CCSM4", rcp = "rcp85", path.base, x, shp, shp.names))

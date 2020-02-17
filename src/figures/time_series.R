@@ -4,19 +4,164 @@
 # project: NASA HiMAT
 # Danielle S Grogan
 
-library(raster)
-rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
-library(rasterVis)
 library(rgdal)
 library(rgeos)
-library(maptools)
-library(maps)
-library(abind)
 library(RColorBrewer)
-
+library(ggplot2)
+library(tidyr)
+library(reshape2)
+library(tibble)
 
 #######################################################################################################################################
 ### Time series plots
+#######################################################################################################################################
+# 1. plot water inputs for each basin: monthly climatology
+# precip, snow melt, glacier melt
+
+if(mod == "ERA_hist"){
+  m.char = mod
+}else{
+  m.char = paste(mod, rcp, sep="_")
+}
+
+rainfall = read.csv(paste("results/rainFall/", m.char, "_basin_rainFall_km3_mc.csv", sep=""))     # total precip
+snowMelt = read.csv(paste("results/snowMelt/", m.char, "_basin_snowMelt_km3_mc.csv", sep=""))
+iceMelt  = read.csv(paste("results/Glacier_ice_melt/", m.char, "_glacier_melt_basins_mc.csv", sep=""))
+iceMelt[16,2:25] = colSums(iceMelt[,2:25]) 
+
+basins = rainfall$Basin
+
+# one plot per basin --> one tibble per basin
+for(b in 1:length(basins)){
+  b.rain = subset(rainfall[b,])
+  b.snow = subset(snowMelt[b,])
+  b.gice = subset(iceMelt[b,])
+  
+  month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  b.data = as.data.frame(matrix(nr=12*3, nc=4))
+  b.data[,1] = rep((seq(1,12)),3)
+  b.data[,2] = c(rep("Rain", 12), rep("Snowmelt", 12), rep("Glacier ice melt", 12))
+  b.data[,3] = c((as.numeric(b.rain)[2:13]), (as.numeric(b.snow)[2:13]),(as.numeric(b.gice)[2:13]))
+  b.data[,4] = c((as.numeric(b.rain)[14:25]), (as.numeric(b.snow)[14:25]),(as.numeric(b.gice)[14:25]))
+  colnames(b.data) = c("Month", "Water_Source", "Mean", "Stdev")
+  b.data = as_tibble(b.data)
+  
+  b.data.plot = 
+    ggplot(b.data, aes(x = Month, y = Mean, group = Water_Source, 
+                       color = Water_Source)) +
+    geom_ribbon(aes(ymin = b.data$Mean - b.data$Stdev, 
+                    ymax = b.data$Mean + b.data$Stdev, 
+                    fill = Water_Source), 
+                alpha=0.2, colour = NA) +
+    geom_line(aes( color = Water_Source), alpha = 1, size = 1) +  
+    labs(fill = "Water Source") +
+    labs(colour = "Water Source") +
+    labs(x = "Month", y = expression(paste("Water Supply (km"^3~"month"^-1~")")), title = basins[b]) +
+    scale_x_continuous(breaks = seq(1, 12, by=1), 
+                       expand = c(0,0),  
+                       labels=month.names) +
+    scale_y_continuous(expand = c(0,0))+
+    theme_classic(base_size = 12) 
+
+ # b.data.plot
+  
+  ggsave(filename = paste(m.char, basins[b], "basin_water_sources.png", sep="_"),
+         plot = b.data.plot,
+         device = "png",
+         path = "figures/Water_Sources",
+         scale = 1, width = 8, height = 4, units = c("in"),
+         dpi = 300)
+
+}
+
+#######################################################################################################################################
+# 2. plot irrigation water use by source for each basin: monthly climatology
+# precip, snow melt, glacier melt, non-ice melt glacier runoff, unsustainable groundwater
+
+if(mod == "ERA_hist"){
+  m.char = mod
+  yr.char = "1980_2016"
+}else{
+  m.char = paste(mod, rcp, sep="_")
+}
+
+
+Rain     = read.csv(paste("results/Irrigation/irrigationGross/", m.char, "_basin_GrossIrr_pr_",  yr.char, "_monthly_stats.csv", sep=""))     
+snowMelt = read.csv(paste("results/Irrigation/irrigationGross/", m.char, "_basin_GrossIrr_ps_",  yr.char, "_monthly_stats.csv", sep=""))     
+iceMelt  = read.csv(paste("results/Irrigation/irrigationGross/", m.char, "_basin_GrossIrr_pgi_", yr.char, "_monthly_stats.csv", sep="")) 
+nonMelt  = read.csv(paste("results/Irrigation/irrigationGross/", m.char, "_basin_GrossIrr_pgn_", yr.char, "_monthly_stats.csv", sep=""))  
+UGW      = read.csv(paste("results/Irrigation/irrigationGross/", m.char, "_basin_GrossIrr_pu_",  yr.char, "_monthly_stats.csv", sep="")) 
+
+Rain     = subset(Rain,     select = c(grepl("GrossIrr_km3_pr", colnames(Rain))))
+snowMelt = subset(snowMelt, select = c(grepl("GrossIrr_km3_ps", colnames(snowMelt))))
+iceMelt  = subset(iceMelt,  select = c(grepl("GrossIrr_km3_pgi",colnames(iceMelt))))
+nonMelt  = subset(nonMelt,  select = c(grepl("GrossIrr_km3_pgn",colnames(nonMelt))))
+UGW      = subset(UGW,      select = c(grepl("GrossIrr_km3_pu", colnames(UGW))))
+
+basins =  rainfall$Basin
+
+# one plot per basin --> one tibble per basin
+for(b in 1:length(basins)){
+  b.rain = subset(Rain[b,])
+  b.snow = subset(snowMelt[b,])
+  b.gice = subset(iceMelt[b,])
+  b.nice = subset(nonMelt[b,])
+  b.ugw  = subset(UGW[b,])
+  
+  month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  b.data = as.data.frame(matrix(nr=12*5, nc=4))
+  b.data[,1] = rep((seq(1,12)),5)
+  b.data[,2] = c(rep("Rain", 12), rep("Snowmelt", 12), 
+                 rep("Glacier ice melt", 12), rep("Glacier non-ice runoff", 12),
+                 rep("Unsust. groundwater", 12))
+  b.data[,3] = c((as.numeric(b.rain)[1:12]), (as.numeric(b.snow)[1:12]), 
+                 (as.numeric(b.gice)[1:12]), (as.numeric(b.nice)[1:12]),
+                 (as.numeric(b.ugw)[1:12]))
+  b.data[,4] = c((as.numeric(b.rain)[13:24]), (as.numeric(b.snow)[13:24]), 
+                 (as.numeric(b.gice)[13:24]), (as.numeric(b.nice)[13:24]),
+                 (as.numeric(b.ugw)[13:24]))
+  colnames(b.data) = c("Month", "Water_Source", "Mean", "Stdev")
+  b.data = as_tibble(b.data)
+  
+  b.data.plot = 
+    ggplot(b.data, aes(x = Month, y = Mean, group = Water_Source, 
+                       color = Water_Source)) +
+    geom_ribbon(aes(ymin = b.data$Mean - b.data$Stdev, 
+                    ymax = b.data$Mean + b.data$Stdev, 
+                    fill = Water_Source), 
+                alpha=0.2, colour = NA) +
+    scale_fill_brewer(palette="Dark2")+
+    geom_line(aes( color = Water_Source), alpha = 1, size = 1) +  
+    scale_colour_brewer(palette="Dark2")+
+    labs(fill = "Irrigation Water Source") +
+    labs(colour = "Irrigation Water Source") +
+    labs(x = "Month", y = expression(paste("Irrigation Water (km"^3~"month"^-1~")")), title = basins[b]) +
+    scale_x_continuous(breaks = seq(1, 12, by=1), 
+                       expand = c(0,0),  
+                       labels=month.names) +
+    scale_y_continuous(expand = c(0,0))+
+    theme_classic(base_size = 12) 
+  #b.data.plot
+  
+  ggsave(filename = paste(m.char, basins[b], "basin_irrigation_water_use.png", sep="_"),
+         plot = b.data.plot,
+         device = "png",
+         path = "figures/Water_Use",
+         scale = 1, width = 8, height = 4, units = c("in"),
+         dpi = 300)
+  
+}
+#######################################################################################################################################
+
+# SANDBOX
+
+
+#######################################################################################################################################
+
+
+
+
+
 
 # plot time series for each basin
 plot.dir = "figures/"

@@ -24,7 +24,7 @@ monthly_clim = function(mod, rcp){
     data.mc = as.data.frame(cbind(data.m[,1], monthly_to_mc(data.m[,2:ncol(data.m)])))
     colnames(data.mc)[1] = "Basin"
     out.nm = paste("results/", v, "/", m.char, "_basin_", v, "_km3_mc.csv", sep="")
-    write.csv(data.mc, out.nm)
+    write.csv(data.mc, out.nm, row.names=F)
   }
   
   # glacier ice melt
@@ -32,7 +32,7 @@ monthly_clim = function(mod, rcp){
   data.mc = as.data.frame(cbind(data.m[,1], monthly_to_mc(data.m[,2:ncol(data.m)])))
   colnames(data.mc)[1] = "Basin"
   out.nm = paste("results/Glacier_ice_melt/", m.char, "_glacier_melt_basins_mc.csv", sep="")
-  write.csv(data.mc, out.nm)
+  write.csv(data.mc, out.nm, row.names=F)
   
   # calculate rain (liquid precip) 
   precip   = read.csv(paste("results/precip/", m.char, "_basin_precip_km3_monthly.csv", sep=""))
@@ -40,11 +40,12 @@ monthly_clim = function(mod, rcp){
   
   rain.m = precip[,2:ncol(precip)] - snowFall[,2:ncol(snowFall)]
   rain.mc = as.data.frame(cbind(precip[,1], monthly_to_mc(rain.m)))
+  colnames(rain.mc)[1] = "Basin"
   rain.m.out = as.data.frame(cbind(rain.mc[,1], rain.m))
   
-  create_dir("results/rainFall")
-  write.csv(rain.m.out, paste("results/rainFall/", m.char, "_basin_rainFall_km3_monthly.csv", sep=""))
-  write.csv(rain.mc, paste("results/rainFall/", m.char, "_basin_rainFall_km3_mc.csv", sep=""))
+  #create_dir("results/rainFall")
+  write.csv(rain.m.out, paste("results/rainFall/", m.char, "_basin_rainFall_km3_monthly.csv", sep=""), row.names=F)
+  write.csv(rain.mc, paste("results/rainFall/", m.char, "_basin_rainFall_km3_mc.csv", sep=""), row.names=F)
   
 }
 
