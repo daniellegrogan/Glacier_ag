@@ -127,8 +127,27 @@ basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
 mod = "ERA_hist"
 path.out  = "results"
 path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod)
-years = seq(1980, 2016)  # full historical time series
+years = seq(1980, 2009)  # climatology historical time series
 r = 'historical'
+
+
+# spatial aggregation
+vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")
+monthly.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path.base, "monthly", var), 
+                                                    shp = basins, 
+                                                    years, 
+                                                    var, 
+                                                    row.nm = as.character(basins$name),
+                                                    out.nm = paste(path.out, "/Irrigation/", var, "/ERA_hist_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")))
+
+# sum monthly aggregates to yearly
+yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/Irrigation/", var, "/ERA_hist_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                                                          out.nm = paste(path.out, "/Irrigation/", var, "/ERA_hist_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
+data.m = read.csv("results/Irrigation/irrigationGross/ERA_hist_basin_irrigationGross_km3_1980_1981_monthly.csv")
+
+
+
+
 
 # Inputs: variable pairs for which to calculate contributions
 # NB  _pgi := glacier ice melt. 

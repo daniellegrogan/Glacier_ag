@@ -24,9 +24,11 @@ if(mod == "ERA_hist"){
   m.char = paste(mod, rcp, sep="_")
 }
 
-rainfall = read.csv(paste("results/rainFall/", m.char, "_basin_rainFall_km3_mc.csv", sep=""))     # total precip
-snowMelt = read.csv(paste("results/snowMelt/", m.char, "_basin_snowMelt_km3_mc.csv", sep=""))
-iceMelt  = read.csv(paste("results/Glacier_ice_melt/", m.char, "_glacier_melt_basins_mc.csv", sep=""))
+year.str = "1980_2009"
+
+rainfall = read.csv(paste("results/rainFall/", m.char, "_basin_rainFall_km3_", year.str, "_mc.csv", sep=""))     # total precip
+snowMelt = read.csv(paste("results/snowMelt/", m.char, "_basin_snowMelt_km3_", year.str, "_mc.csv", sep=""))
+iceMelt  = read.csv(paste("results/Glacier_ice_melt/", m.char, "_glacier_melt_basins_", year.str, "_mc.csv", sep=""))
 iceMelt[16,2:25] = colSums(iceMelt[,2:25]) 
 
 basins = rainfall$Basin
@@ -63,7 +65,7 @@ for(b in 1:length(basins)){
     scale_y_continuous(expand = c(0,0))+
     theme_classic(base_size = 12) 
 
- # b.data.plot
+  #b.data.plot
   
   ggsave(filename = paste(m.char, basins[b], "basin_water_sources.png", sep="_"),
          plot = b.data.plot,

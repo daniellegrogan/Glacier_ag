@@ -1,119 +1,56 @@
 # agg_contribution()
 # Calculate contribution of tracked water components to irrigation
+# Requires monthly spatial aggregation of all irrigation variables to be complete for the input model and rcp (output from file basin_aggregations.R)
 
 # project: NASA HiMAT
 # Danielle S Grogan
 
-library(raster)
-rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
-library(rgdal)
-library(rgeos)
+#######################################################################################################################################
+calc_percent = function(main.var, comp.vars){
 
-agg_contribution = function(path,          # path to wbm output
-                            basins,        # shapefile of basins over which to aggregate
-                            vars,          # vector of two character strings: should be two complementary variables for component tracking, e.g., GrossIrr and GrossIrr_pg
-                            years,         # vector of years over which to process, e.g., seq(2000, 2005)
-                            percent.nm,    # character string: name for percent output, e.g., "GrossIrr_pg_percent"
-                            out.nm.pre     # character string: location for output with file prefix, e.g., "results/ERA_hist/ERA_hist_basin_"
-                            ){     
+  main     = read.csv(paste("results/", main.var, "/", mod.char, "_basin_", main.var, "_km3_", yr.char, "_monthly.csv", sep=""))
   
-  if(grepl("monthly", c(path))){
+  for(v in comp.vars){
+    irr.comp = read.csv(paste("results/", v, "/",  mod.char, "_basin_", v, "_km3_", yr.char, "_monthly.csv", sep=""), row.names=F)
+    irr.percent = 100*(irr.comp[, 2:ncol(irr.comp)]/main[, 2:ncol(main)])
+    irr.percent = cbind(as.character(irr.comp[,1]), irr.percent) # 1st column = basin names
     
-    if(grepl("ERA_hist", path)){
-      basin.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path, var), shp = basins, years, var))
-    }else{
-      basin.agg = lapply(vars, function(var) extract_ts(raster.path = path, shp = basins, years, var))
-    }
-
-    # for monthly
-    # x days-per-month to convert from ave/month to total per month
-    month.data = read.csv("data/days_in_months.csv")
+    # write monthly percent
+    write.table(paste("results/", v, "/",  mod.char, "_basin_", v, "_percent_", yr.char, "_monthly.csv", sep=""), row.names=F)
     
-    basin.array = month.data$days*array(as.numeric(unlist(basin.agg)), dim=c(nrow(basin.agg[[1]]), ncol(basin.agg[[1]]), length(vars)))
-    gross_irr_pg_percent = 100*(basin.array[,,2]/basin.array[,,1])
-    basin.array = abind(basin.array, gross_irr_pg_percent, along=3)
-    
-    # make a date sequence for the column names. assume full years (Jan through Dec)
-    month.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
-                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
-                      by   = "month")
-    
-    # write full time series to file
-    for(i in 1:dim(basin.array)[3]){
-      if(i < 3){
-        out.nm.i = paste(out.nm.pre, sub("mm", "km3", vars[i]), "_", min(years), "_", max(years), "_monthly.csv", sep="")
-      }else{
-        out.nm.i = paste(out.nm.pre, sub("mm", "percent", vars[2]), "_", min(years), "_", max(years), "_monthly.csv", sep="")
-      }
-      var.out = basin.array[,,i]
-      rownames(var.out) = c(as.character(basins$name), "all_basins")
-      colnames(var.out) = as.character(month.cols)
-      write.csv(var.out, out.nm.i)
-    }
-    
-    # calculate mean and stdev
-    n.years = length(years)
-    m = seq(1,12*n.years)
-    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-    
-    month.summary.mean  = data.frame(matrix(nr=dim(basin.array)[1], nc=dim(basin.array)[3]*12))
-    month.summary.stdev = data.frame(matrix(nr=dim(basin.array)[1], nc=dim(basin.array)[3]*12))
-    
-    m.names = lapply(X = month.names, FUN = rep, dim(basin.array)[3])
-    var.names = c(vars, percent.nm)
-    colnames(month.summary.mean)  = paste(unlist(m.names), var.names, sep="_")
-    colnames(month.summary.mean) = sub("mm", "km3", colnames(month.summary.mean))   # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
-    colnames(month.summary.stdev) = paste(unlist(m.names), paste(var.names, "stdev", sep="_"), sep="_")
-    colnames(month.summary.stdev) = sub("mm", "km3", colnames(month.summary.stdev))   # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
-    
-    m = seq(1:ncol(basin.array))
-    
-    for(month in 1:12){
-      month.data = basin.array[,which(m%%12 == month),]
-      month.summary.mean[((3*month)-2):(3*month)]  = apply(month.data, c(1,3), mean)
-      month.summary.stdev[((3*month)-2):(3*month)] = apply(month.data, c(1,3), sd)
-    }
-    
-    out = cbind(month.summary.mean, month.summary.stdev)
-    rownames(out) = c(as.character(basins$name), "all_basins")
-    
-  }else if(grepl("yearly", c(path))){
-    raster.paths = file.path(path, vars)
-    basin.agg = lapply(raster.paths, extract_ts, basins, years)
-    
-    # x365 to convert from ave/year to total per year
-    basin.array = 365*array(as.numeric(unlist(basin.agg)), dim=c(length(basins)+1, ncol(basin.agg[[1]]), length(vars)))
-    var_percent = 100*(basin.array[,,2]/basin.array[,,1])
-    basin.array = abind(basin.array, var_percent, along=3)
-    
-    # write full time series to file
-    for(i in 1:dim(basin.array)[3]){
-      if(i < 3){
-        out.nm.i = paste(out.nm.pre, sub("mm", "km3", vars[i]), "_", min(years), "_", max(years), "_yearly.csv", sep="")
-      }else{
-        out.nm.i = paste(out.nm.pre, sub("mm", "percent", vars[2]), "_", min(years), "_", max(years), "_yearly.csv", sep="")
-      }
-      var.out = basin.array[,,i]
-      rownames(var.out) = c(as.character(basins$name), "all_basins")
-      colnames(var.out) = years
-      write.csv(var.out, out.nm.i)
-    }
-    
-    # calculate mean and stdev
-    mean.var = apply(basin.array, c(1,3), mean)
-    mean.var = as.data.frame(mean.var)
-    colnames(mean.var) = c(vars, percent.nm)
-    colnames(mean.var) = sub("mm", "km3", colnames(mean.var)) # replace "mm" with "km3" in column names because extract_ts() takes depth and outputs volume
-    rownames(mean.var) = c(as.character(basins$name), "all_basins")
-    
-    stdev.var = apply(basin.array, c(1,3), sd)
-    stdev.var = as.data.frame(stdev.var)
-    colnames(stdev.var) = paste(c(vars, percent.nm), "stdev", sep="_")
-    rownames(stdev.var) = c(as.character(basins$name), "all_basins")
-    
-    out = cbind(mean.var, stdev.var)
+    # calculate yearly values
+    monthly_to_yearly(data.m = irr.percent, out.nm = paste("results/", v, "/",  mod.char, "_basin_", v, "_percent_", yr.char, "_yearly.csv", sep=""))
   }
-  
-  # output mean and stdev (needed in other function calls)
-  out   
 }
+
+#######################################################################################################################################
+agg_contribution = function(mod,    # character string: climate model 
+                            rcp,    # character string: rcp.  set to "NA" for ERA_hist
+                            years  # vector of years
+){     
+  
+    if(mod == "ERA_hist"){
+      mod.char = "ERA_hist"
+    }else{
+      mod.char = paste(mod, rcp, sep="_")
+    }
+  
+    yr.char = paste(min(years), max(years), sep="_")
+    
+    # 1. Gross irrigation
+    main.var = "irrigationGross"
+    comp.vars = c("GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")
+    calc_percent(main.var, comp.vars)
+    
+    # 2. Surface water irrigation
+    main.var = "irrigationFlow"
+    comp.vars = c("IrrFlow_mm_pgi", "IrrFlow_mm_pgn", "IrrFlow_mm_ps", "IrrFlow_mm_pr", "IrrFlow_mm_pu")
+    calc_percent(main.var, comp.vars)
+    
+  
+    # 3. Groundwater irrigation
+    main.var = "irrigationGrwt" 
+    comp.vars = c("IrrGrwt_mm_pgi", "IrrGrwt_mm_pgn", "IrrGrwt_mm_ps", "IrrGrwt_mm_pr", "IrrGrwt_mm_pu")
+    calc_percent(main.var, comp.vars)
+}
+#######################################################################################################################################
