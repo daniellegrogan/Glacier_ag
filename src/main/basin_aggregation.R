@@ -44,6 +44,19 @@ vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_p
          'runoff', 'irrRunoff', 'snowMelt', 'snowFall', 'precip', 'irrigationGrwt', 'irrigationExtra', 'glMelt',          # water sources
          'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_mm_pgi')                                                             # other useful vars
 
+lapply(vars, FUN = function(var){create_dir(file.path("results", var))})
+
+# test
+for(v in vars){
+  file.nm.y = paste("results/", v, "/ERA_hist_basin_", v, "_km3_1980_2009_monthly.csv", sep="")
+  file.nm.m = paste("results/", v, "/ERA_hist_basin_", v, "_km3_1980_2009_yearly.csv", sep="")
+  if(!file.exists(file.nm.y)){
+    print(paste("yearly file", v, "missing"))
+  }
+  if(!file.exists(file.nm.m)){
+    print(paste("monthly file", v, "missing"))
+  }
+}
 
 ############ ERA HISTORICAL ################
 mod = "ERA_hist"
@@ -104,3 +117,35 @@ for(m in mods){
     
   }
 }
+
+######################################
+vars = c("irrigationGross", "precip")
+mods  = c("CanESM2", 
+          "CNRM-CM5", 
+          "MPI-ESM-LR", 
+          "NorESM1-M", 
+          "bcc-csm1-1", 
+          "CESM1-CAM5", 
+          "CSIRO-Mk3-6-0 ",
+          "GFDL-CM3")
+rcp = c("rcp26")
+path.out  = "results"
+years = seq(2006, 2099) 
+
+for(m in mods){
+  for(r in rcp){
+    path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", m, r)
+    monthly.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path.base, "monthly"), 
+                                                        shp = basins, 
+                                                        years, 
+                                                        var, 
+                                                        row.nm = as.character(basins$name),
+                                                        out.nm = paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")))
+    # sum monthly aggregates to yearly
+    yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                                                              out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
+    
+  }
+}
+
+

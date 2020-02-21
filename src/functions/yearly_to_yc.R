@@ -28,7 +28,7 @@ yearly_to_yc = function(data.y, years, out.nm=NA){
   }
   
   if(is.na(out.nm) == F){
-    write.csv(out, out.nm)
+    write.csv(out, out.nm, quote = F, row.names = F)
     print(out.nm)
   }
   out
