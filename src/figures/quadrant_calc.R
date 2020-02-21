@@ -1,5 +1,8 @@
 # quadrant_calc()
 
+library(rgdal)
+library(rgeos)
+
 # identify which "quadrant" of a delta ice melt vs delta precip plot each model/rcp/climatology lands in
 
 hist.precip = read.csv("results/precip/ERA_hist_basin_precip_km3_1980_2009_yc.csv")
@@ -71,10 +74,12 @@ total.water.diff = diff.precip + diff.icemlt
 # time periods: different fill
 # RCPs: different different shapes
 # basins: different colors
+# yellow: '#ffe119',
 
-cols = c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
-         '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', 
-         '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff')
+cols = c('#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', 
+         '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', 
+         '#e6beff', '#9a6324', "#A9A9A9", '#800000', '#000075',
+         '#808080','#aaffc3', '#808000', '#ffd8b1')
 
 
 png("figures/Quadrant/2x2_example.png", res=100, height=1000, width=1500)
@@ -117,8 +122,8 @@ png("figures/Quadrant/Diff_water_vs_diff_irr.png", res=100, height=1000, width=1
 par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
 for(b in 1:15){
   if(b==1){
-    plot(total.water.diff[b,1], diff.irr[b,1], 
-         xlim=c(min(total.water.diff),max(total.water.diff)), 
+    plot(total.water.diff[b,1], diff.irr[b,1],                      # mid, rcp45
+         xlim=c(min(total.water.diff),max(total.water.diff)),  
          ylim=c(min(diff.irr), max(diff.irr)), 
          xlab = "Change in Water Available (km3/year)",
          ylab = "Change in Irr Water Demand (km3/year)",
@@ -137,11 +142,155 @@ for(b in 1:15){
   points(total.water.diff[b,5], diff.irr[b,5], pch=1,  col=cols[b])  # mid, rcp45
   points(total.water.diff[b,6], diff.irr[b,6], pch=19,  col=cols[b]) # late, rcp45
   
-  points(total.water.diff[b,7], diff.irr[b,7], pch=2,  col=cols[b])  # mid, rcp45
-  points(total.water.diff[b,8], diff.irr[b,8], pch=17,  col=cols[b]) # late, rcp45
+  points(total.water.diff[b,7], diff.irr[b,7], pch=2,  col=cols[b])  # mid, rcp85
+  points(total.water.diff[b,8], diff.irr[b,8], pch=17,  col=cols[b]) # late, rcp85
 }
 par(xpd=TRUE)
 legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+
+#################################################
+# one figure per rcp
+
+
+png("figures/Quadrant/2x2_example_rcp45.png", res=100, height=1000, width=1500)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(diff.precip[b,1], diff.icemlt[b,1],                       # mid, rcp45
+         xlim=c(min(diff.precip),max(diff.precip)), 
+         ylim=c(min(diff.icemlt), max(diff.icemlt)), 
+         xlab = "Change in Precipitation (km3/year)",
+         ylab = "Change in Glacier Ice Melt (km3/year)",
+         main = "RCP 4.5",
+         pch=1,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=-1, lty=2)
+  }
+  points(diff.precip[b,2], diff.icemlt[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  # model 2
+  points(diff.precip[b,5], diff.icemlt[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(diff.precip[b,6], diff.icemlt[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+
+# diff total water vs diff irr
+png("figures/Quadrant/Diff_water_vs_diff_irr.png", res=100, height=1000, width=1500)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(total.water.diff[b,1], diff.irr[b,1], 
+         xlim=c(min(total.water.diff),max(total.water.diff)), 
+         ylim=c(min(diff.irr), max(diff.irr)), 
+         xlab = "Change in Water Available (km3/year)",
+         ylab = "Change in Irr Water Demand (km3/year)",
+         main = "RCP 4.5",
+         pch=1,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=1, lty=2)
+  }
+  points(total.water.diff[b,2], diff.irr[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  # model 2
+  points(total.water.diff[b,5], diff.irr[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(total.water.diff[b,6], diff.irr[b,6], pch=19,  col=cols[b]) # late, rcp45
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+################################################################################################
+
+# normalize basins: convert km3 to mm
+
+basins = readOGR("data/basins_hma", "basins_hma")  # shapefile contains basin areas
+area.km2 = area(basins)*1e-6  # area of basins in km2
+
+diff.precip.mm       = 1e6*(diff.precip/area.km2)
+diff.icemlt.mm       = 1e6*(diff.icemlt/area.km2)
+total.water.diff.mm  = 1e6*(total.water.diff/area.km2)
+diff.irr.mm          = 1e6*(diff.irr/area.km2)
+
+
+png("figures/Quadrant/Diff_precip_vs_diff_glacier_mm.png", res=300, units="in", width=8, height=5)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(diff.precip.mm[b,1], diff.icemlt.mm[b,1], 
+         xlim=c(min(diff.precip.mm),max(diff.precip.mm)), 
+         ylim=c(min(diff.icemlt.mm), max(diff.icemlt.mm)), 
+         xlab = "Change in Precipitation (mm/year)",
+         ylab = "Change in Glacier Ice Melt (mm/year)",
+         pch=1,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=-1, lty=2)
+  }
+  points(diff.precip.mm[b,2], diff.icemlt.mm[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  points(diff.precip.mm[b,3], diff.icemlt.mm[b,3], pch=2,  col=cols[b])  # mid, rcp85
+  points(diff.precip.mm[b,4], diff.icemlt.mm[b,4], pch=17,  col=cols[b]) # late, rcp85
+  
+  # model 2
+  points(diff.precip.mm[b,5], diff.icemlt.mm[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(diff.precip.mm[b,6], diff.icemlt.mm[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+  points(diff.precip.mm[b,7], diff.icemlt.mm[b,7], pch=2,  col=cols[b])  # mid, rcp45
+  points(diff.precip.mm[b,8], diff.icemlt.mm[b,8], pch=17,  col=cols[b]) # late, rcp45
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.75, inset=c(-0.65,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
+legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+
+
+# diff total water vs diff irr
+png("figures/Quadrant/Diff_water_vs_diff_irr.png", res=100, height=1000, width=1500)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(total.water.diff.mm[b,1], diff.irr.mm[b,1],                      # mid, rcp45
+         xlim=c(min(total.water.diff.mm),max(total.water.diff.mm)),  
+         ylim=c(min(diff.irr.mm), max(diff.irr.mm)), 
+         xlab = "Change in Water Available (mm/year)",
+         ylab = "Change in Irr Water Demand (mm/year)",
+         pch=1,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=1, lty=2)
+  }
+  points(total.water.diff.mm[b,2], diff.irr.mm[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  points(total.water.diff.mm[b,3], diff.irr.mm[b,3], pch=2,  col=cols[b])  # mid, rcp85
+  points(total.water.diff.mm[b,4], diff.irr.mm[b,4], pch=17,  col=cols[b]) # late, rcp85
+  
+  # model 2
+  points(total.water.diff.mm[b,5], diff.irr.mm[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(total.water.diff.mm[b,6], diff.irr.mm[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+  points(total.water.diff.mm[b,7], diff.irr.mm[b,7], pch=2,  col=cols[b])  # mid, rcp85
+  points(total.water.diff.mm[b,8], diff.irr.mm[b,8], pch=17,  col=cols[b]) # late, rcp85
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.8, inset=c(-0.7,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.4, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
+legend("topright", bty='n', cex=0.8, inset=c(-0.4, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()
