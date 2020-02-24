@@ -2,6 +2,8 @@
 
 library(rgdal)
 library(rgeos)
+library(raster)
+rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
 
 # identify which "quadrant" of a delta ice melt vs delta precip plot each model/rcp/climatology lands in
 
@@ -110,7 +112,7 @@ for(b in 1:15){
   points(diff.precip[b,8], diff.icemlt[b,8], pch=17,  col=cols[b]) # late, rcp45
 }
 par(xpd=TRUE)
-legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.6,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()
@@ -146,7 +148,7 @@ for(b in 1:15){
   points(total.water.diff[b,8], diff.irr[b,8], pch=17,  col=cols[b]) # late, rcp85
 }
 par(xpd=TRUE)
-legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()
@@ -180,7 +182,7 @@ for(b in 1:15){
   
 }
 par(xpd=TRUE)
-legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()
 
@@ -209,7 +211,7 @@ for(b in 1:15){
   points(total.water.diff[b,6], diff.irr[b,6], pch=19,  col=cols[b]) # late, rcp45
 }
 par(xpd=TRUE)
-legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.8,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.8, inset=c(-0.45, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()
 
@@ -254,7 +256,7 @@ for(b in 1:15){
   points(diff.precip.mm[b,8], diff.icemlt.mm[b,8], pch=17,  col=cols[b]) # late, rcp45
 }
 par(xpd=TRUE)
-legend("topright", bty='n', cex=0.75, inset=c(-0.65,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.75, inset=c(-0.65,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
 legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()
@@ -262,7 +264,7 @@ dev.off()
 
 
 # diff total water vs diff irr
-png("figures/Quadrant/Diff_water_vs_diff_irr.png", res=100, height=1000, width=1500)
+png("figures/Quadrant/Diff_water_vs_diff_irr_mm.png", res=100, height=1000, width=1500)
 par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
 for(b in 1:15){
   if(b==1){
@@ -290,7 +292,211 @@ for(b in 1:15){
   points(total.water.diff.mm[b,8], diff.irr.mm[b,8], pch=17,  col=cols[b]) # late, rcp85
 }
 par(xpd=TRUE)
-legend("topright", bty='n', cex=0.8, inset=c(-0.7,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.6,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.8, inset=c(-0.4, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
+legend("topright", bty='n', cex=0.8, inset=c(-0.4, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+
+
+######################################################################################################
+
+# one plot per RCP
+
+# RCP 45
+png("figures/Quadrant/Diff_precip_vs_diff_glacier_RCP45_mm.png", res=300, units="in", width=8, height=5)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(diff.precip.mm[b,1], diff.icemlt.mm[b,1], 
+         xlim=c(min(diff.precip.mm),max(diff.precip.mm)), 
+         ylim=c(min(diff.icemlt.mm), max(diff.icemlt.mm)), 
+         xlab = "Change in Precipitation (mm/year)",
+         ylab = "Change in Glacier Ice Melt (mm/year)",
+         main = "RCP 4.5",
+         pch=1,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=-1, lty=2)
+  }
+  points(diff.precip.mm[b,2], diff.icemlt.mm[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  # model 2
+  points(diff.precip.mm[b,5], diff.icemlt.mm[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(diff.precip.mm[b,6], diff.icemlt.mm[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.75, inset=c(-0.6,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.8), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+
+# rcp85
+png("figures/Quadrant/Diff_precip_vs_diff_glacier_RCP85_mm.png", res=300, units="in", width=8, height=5)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(diff.precip.mm[b,1], diff.icemlt.mm[b,3], 
+         xlim=c(min(diff.precip.mm),max(diff.precip.mm)), 
+         ylim=c(min(diff.icemlt.mm), max(diff.icemlt.mm)), 
+         xlab = "Change in Precipitation (mm/year)",
+         ylab = "Change in Glacier Ice Melt (mm/year)",
+         main = "RCP 8.5",
+         pch=2,  col=cols[b]) # mid, rcp85
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=-1, lty=2)
+  }
+  points(diff.precip.mm[b,2], diff.icemlt.mm[b,4], pch=17, col=cols[b])  # late, rcp85
+  
+  # model 2
+  points(diff.precip.mm[b,5], diff.icemlt.mm[b,7], pch=2,  col=cols[b])  # mid, rcp85
+  points(diff.precip.mm[b,6], diff.icemlt.mm[b,8], pch=17,  col=cols[b]) # late, rcp85
+  
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.75, inset=c(-0.6,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.8), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+dev.off()
+
+
+
+######################################################################################################
+
+# one plot per time period
+
+png("figures/Quadrant/Diff_precip_vs_diff_glacier_mm_2040_2069.png", res=300, units="in", width=8, height=5)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(diff.precip.mm[b,1], diff.icemlt.mm[b,1], 
+         xlim=c(min(diff.precip.mm),max(diff.precip.mm)), 
+         ylim=c(min(diff.icemlt.mm), max(diff.icemlt.mm)), 
+         xlab = "Change in Precipitation (mm/year)",
+         ylab = "Change in Glacier Ice Melt (mm/year)",
+         main = "Mid Century 2040-2069",
+         pch=19,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=-1, lty=2)
+  }
+  
+  points(diff.precip.mm[b,3], diff.icemlt.mm[b,3], pch=17,  col=cols[b])  # mid, rcp85
+  
+  # model 2
+  points(diff.precip.mm[b,5], diff.icemlt.mm[b,5], pch=19,  col=cols[b])  # mid, rcp45
+  
+  points(diff.precip.mm[b,7], diff.icemlt.mm[b,7], pch=17,  col=cols[b])  # mid, rcp85
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.75, inset=c(-0.5,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.75, inset=c(-0.25, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
+dev.off()
+
+png("figures/Quadrant/Diff_precip_vs_diff_glacier_mm_2070_2099.png", res=300, units="in", width=8, height=5)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(diff.precip.mm[b,2], diff.icemlt.mm[b,1], 
+         xlim=c(min(diff.precip.mm),max(diff.precip.mm)), 
+         ylim=c(min(diff.icemlt.mm), max(diff.icemlt.mm)), 
+         xlab = "Change in Precipitation (mm/year)",
+         ylab = "Change in Glacier Ice Melt (mm/year)",
+         main = "Late Century 2070-2099",
+         pch=19,  col=cols[b]) # late, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=-1, lty=2)
+  }
+  
+  points(diff.precip.mm[b,4], diff.icemlt.mm[b,4], pch=17,  col=cols[b]) # late, rcp85
+  
+  # model 2
+  points(diff.precip.mm[b,6], diff.icemlt.mm[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+  points(diff.precip.mm[b,8], diff.icemlt.mm[b,8], pch=17,  col=cols[b]) # late, rcp85
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.75, inset=c(-0.5,-0.05), legend=as.character(hist.icemlt$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+legend("topright", bty='n', cex=0.75, inset=c(-0.25, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
+dev.off()
+
+######################################################################################################
+
+# one plot per time basin
+
+for(b in 1:15){
+  #png(paste("figures/Quadrant/Diff_precip_vs_diff_glacier_mm_", basins$name[b],".png", sep=""), res=300, units="in", width=8, height=5)
+  par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+  plot(diff.precip.mm[b,1], diff.icemlt.mm[b,1], 
+       xlim=c(min(diff.precip.mm),max(diff.precip.mm)), 
+       ylim=c(min(diff.icemlt.mm), max(diff.icemlt.mm)), 
+       xlab = "Change in Precipitation (mm/year)",
+       ylab = "Change in Glacier Ice Melt (mm/year)",
+       main = basins$name[b],
+       pch=1,  col=cols[b]) # mid, rcp45
+  
+  abline(h=0)
+  abline(v=0)
+  abline(a=0, b=-1, lty=2)
+  
+  points(diff.precip.mm[b,2], diff.icemlt.mm[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  points(diff.precip.mm[b,3], diff.icemlt.mm[b,3], pch=2,  col=cols[b])  # mid, rcp85
+  points(diff.precip.mm[b,4], diff.icemlt.mm[b,4], pch=17,  col=cols[b]) # late, rcp85
+  
+  # model 2
+  points(diff.precip.mm[b,5], diff.icemlt.mm[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(diff.precip.mm[b,6], diff.icemlt.mm[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+  points(diff.precip.mm[b,7], diff.icemlt.mm[b,7], pch=2,  col=cols[b])  # mid, rcp45
+  points(diff.precip.mm[b,8], diff.icemlt.mm[b,8], pch=17,  col=cols[b]) # late, rcp45
+  
+  par(xpd=TRUE)
+  #legend("topright", bty='n', cex=0.75, inset=c(-0.65,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
+  legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
+  legend("topright", bty='n', cex=0.75, inset=c(-0.35, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
+  #dev.off()
+  
+}
+
+
+
+# diff total water vs diff irr
+png("figures/Quadrant/Diff_water_vs_diff_irr_mm.png", res=100, height=1000, width=1500)
+par(mar=c(5.1, 4.1, 4.1, 15.1), xpd=FALSE)
+for(b in 1:15){
+  if(b==1){
+    plot(total.water.diff.mm[b,1], diff.irr.mm[b,1],                      # mid, rcp45
+         xlim=c(min(total.water.diff.mm),max(total.water.diff.mm)),  
+         ylim=c(min(diff.irr.mm), max(diff.irr.mm)), 
+         xlab = "Change in Water Available (mm/year)",
+         ylab = "Change in Irr Water Demand (mm/year)",
+         pch=1,  col=cols[b]) # mid, rcp45
+    
+    abline(h=0)
+    abline(v=0)
+    abline(a=0, b=1, lty=2)
+  }
+  points(total.water.diff.mm[b,2], diff.irr.mm[b,2], pch=19, col=cols[b])  # late, rcp45
+  
+  points(total.water.diff.mm[b,3], diff.irr.mm[b,3], pch=2,  col=cols[b])  # mid, rcp85
+  points(total.water.diff.mm[b,4], diff.irr.mm[b,4], pch=17,  col=cols[b]) # late, rcp85
+  
+  # model 2
+  points(total.water.diff.mm[b,5], diff.irr.mm[b,5], pch=1,  col=cols[b])  # mid, rcp45
+  points(total.water.diff.mm[b,6], diff.irr.mm[b,6], pch=19,  col=cols[b]) # late, rcp45
+  
+  points(total.water.diff.mm[b,7], diff.irr.mm[b,7], pch=2,  col=cols[b])  # mid, rcp85
+  points(total.water.diff.mm[b,8], diff.irr.mm[b,8], pch=17,  col=cols[b]) # late, rcp85
+}
+par(xpd=TRUE)
+legend("topright", bty='n', cex=0.8, inset=c(-0.6,-0.05), legend=as.character(hist.precip$Basin), pch=rep(19,15), title="Basin", col=cols[1:15])
 legend("topright", bty='n', cex=0.8, inset=c(-0.4, 0.8), legend=c("RCP 4.5", "RCP 8.5"), pch=c(19,17), title="Climate Scenario")
 legend("topright", bty='n', cex=0.8, inset=c(-0.4, 0.999), legend=c("Mid Century", "Late Century"), pch=c(1,19), title="Time Period")
 dev.off()

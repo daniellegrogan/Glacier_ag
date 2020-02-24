@@ -48,8 +48,8 @@ lapply(vars, FUN = function(var){create_dir(file.path("results", var))})
 
 # test
 for(v in vars){
-  file.nm.y = paste("results/", v, "/ERA_hist_basin_", v, "_km3_1980_2009_monthly.csv", sep="")
-  file.nm.m = paste("results/", v, "/ERA_hist_basin_", v, "_km3_1980_2009_yearly.csv", sep="")
+  file.nm.y = paste("results/", v, "/ERA_hist_basin_", v, "_km3_1980_2009_yearly.csv", sep="")
+  file.nm.m = paste("results/", v, "/ERA_hist_basin_", v, "_km3_1980_2009_monthly.csv", sep="")
   if(!file.exists(file.nm.y)){
     print(paste("yearly file", v, "missing"))
   }
@@ -69,11 +69,19 @@ monthly.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path
                                                     years, 
                                                     var, 
                                                     row.nm = as.character(basins$name),
-                                                    out.nm = paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")))
+                                                    out.nm = paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep=""),
+                                                    check.file = 0))
 # sum monthly aggregates to yearly
 yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
                                                           out.nm =          paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
 
+yc.agg = lapply(vars, function(var) yearly_to_yc(data.y = read.csv(paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")),
+                                                 years = seq(1980,2009),
+                                                 out.nm = paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yc.csv", sep="")))
+# monthly aggregates to monthly climatology
+mc.agg = lapply(vars, function(var) monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                                                  years  = seq(1980, 2009),
+                                                  out.nm =          paste(path.out, "/", var, "/", mod, "_basin_", var, "_km3_",  min(years), "_", max(years), "_mc.csv", sep="")))
 
 ############ GCM HISTORICAL ################
 mods  = c("CCSM4", "MIROC5")
@@ -115,19 +123,44 @@ for(m in mods){
     yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
                                                               out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
     
+ 
+    for(var in vars){
+      clim.yrs  = seq(2040, 2069)
+      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                    years,
+                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+    }
+    
+    for(var in vars){
+      yrs  = seq(2040, 2069)
+      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                    years,
+                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+    }
+    
   }
 }
 
 ######################################
-vars = c("irrigationGross", "precip")
+
 mods  = c("CanESM2", 
           "CNRM-CM5", 
           "MPI-ESM-LR", 
           "NorESM1-M", 
+          "MIROC5",
+          "CCSM4",
           "bcc-csm1-1", 
           "CESM1-CAM5", 
           "CSIRO-Mk3-6-0 ",
-          "GFDL-CM3")
+          "GFDL-CM3",
+          "GFDL-ESM2M", 
+          "GISS-E2-R", 
+          "IPSL-CM5A-LR",  
+          "IPSL-CM5A-MR",  
+          "MIROC-ESM", 
+          "MIROC-ESM-CHEM", 
+          "MRI-CGCM3", 
+          "NorESM1-ME")
 rcp = c("rcp26")
 path.out  = "results"
 years = seq(2006, 2099) 
@@ -145,7 +178,41 @@ for(m in mods){
     yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
                                                               out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
     
+    for(var in vars){
+      clim.yrs  = seq(2040, 2069)
+      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                    years,
+                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+    }
+    
+    for(var in vars){
+      yrs  = seq(2040, 2069)
+      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                    years,
+                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+    }
   }
 }
 
 
+
+####################################################################################################################################################################
+
+# SANDBOX
+vars = c("GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")                                                        
+
+mod = "MIROC5"
+rcp = "rcp45"
+yrs = seq(2006, 2099)
+
+for(var in vars){
+  years  = seq(2040, 2069)
+  monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", mod, "_", rcp, "_basin_", var, "_km3_",  min(yrs), "_", max(yrs), "_monthly.csv", sep="")),
+                years,
+                out.nm =          paste(path.out, "/", var, "/", mod, "_", rcp, "_basin_", var, "_km3_",  min(years), "_", max(years), "_mc.csv", sep=""))
+}
+
+
+# spatial aggregation
+vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu",   # Gross irrigation variables
+         'runoff', 'irrRunoff', 'snowMelt', 'snowFall', 'precip', 'irrigationExtra', 'glMelt')                                                             # other useful vars
