@@ -3,6 +3,8 @@
 # Input a time series data frame of yearly values, and output yearly climatology for a given set of years
 # assumes column header in format: XYYYY.MM.DD (typical output of spatial aggregation)
 
+# dataframe format; NB: this is NOT for rasters
+
 ################################################################################################################
 yearly_to_yc = function(data.y, years, out.nm=NA){
   yr = as.numeric(substr(colnames(data.y), start=2, stop=5))
