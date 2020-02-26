@@ -132,7 +132,7 @@ for(m in mods){
     }
     
     for(var in vars){
-      yrs  = seq(2040, 2069)
+      clim.yrs  = seq(2070, 2099)
       monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
                     years,
                     out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
@@ -186,7 +186,7 @@ for(m in mods){
     }
     
     for(var in vars){
-      yrs  = seq(2040, 2069)
+      clim.yrs  = seq(2070, 2099)
       monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
                     years,
                     out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
