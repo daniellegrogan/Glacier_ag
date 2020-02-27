@@ -19,7 +19,7 @@ monthly_to_yearly = function(data.m, out.nm=NA){
   colnames(data.yr) = unique(yr)
   
   for(i in 1:length(unique(yr))){
-    data.sub = subset(data, select = c(yr == yr[i]))
+    data.sub = subset(data, select = c(yr == unique(yr)[i]))
     data.yr[,i] = rowSums(data.sub)
   }
   
