@@ -105,43 +105,9 @@ for(m in mods){
 }
 
 ############ GCM Future ################
-mods  = c("CCSM4", "MIROC5")
-rcp = c("rcp45", "rcp85")
-path.out  = "results"
-years = seq(2006, 2099) 
 
-for(m in mods){
-  for(r in rcp){
-    path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", m, r)
-    monthly.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path.base, "monthly"), 
-                                                        shp = basins, 
-                                                        years, 
-                                                        var, 
-                                                        row.nm = as.character(basins$name),
-                                                        out.nm = paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")))
-    # sum monthly aggregates to yearly
-    yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                                                              out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
-    
- 
-    for(var in vars){
-      clim.yrs  = seq(2040, 2069)
-      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                    years,
-                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
-    }
-    
-    for(var in vars){
-      clim.yrs  = seq(2070, 2099)
-      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                    years,
-                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
-    }
-    
-  }
-}
-
-######################################
+vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")   
+vars = c('snowMelt', 'snowFall', 'precip', 'irrigationExtra', 'glMelt')   
 
 mods  = c("CanESM2", 
           "CNRM-CM5", 
@@ -151,7 +117,7 @@ mods  = c("CanESM2",
           "CCSM4",
           "bcc-csm1-1", 
           "CESM1-CAM5", 
-          "CSIRO-Mk3-6-0 ",
+          "CSIRO-Mk3-6-0",
           "GFDL-CM3",
           "GFDL-ESM2M", 
           "GISS-E2-R", 
@@ -161,7 +127,7 @@ mods  = c("CanESM2",
           "MIROC-ESM-CHEM", 
           "MRI-CGCM3", 
           "NorESM1-ME")
-rcp = c("rcp26")
+rcp = c("rcp85")
 path.out  = "results"
 years = seq(2006, 2099) 
 
@@ -191,28 +157,10 @@ for(m in mods){
                     years,
                     out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
     }
+    removeTmpFiles(h=6) # remove temporary files older than 6 hours
   }
 }
 
 
 
 ####################################################################################################################################################################
-
-# SANDBOX
-vars = c("GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")                                                        
-
-mod = "MIROC5"
-rcp = "rcp45"
-yrs = seq(2006, 2099)
-
-for(var in vars){
-  years  = seq(2040, 2069)
-  monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", mod, "_", rcp, "_basin_", var, "_km3_",  min(yrs), "_", max(yrs), "_monthly.csv", sep="")),
-                years,
-                out.nm =          paste(path.out, "/", var, "/", mod, "_", rcp, "_basin_", var, "_km3_",  min(years), "_", max(years), "_mc.csv", sep=""))
-}
-
-
-# spatial aggregation
-vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu",   # Gross irrigation variables
-         'runoff', 'irrRunoff', 'snowMelt', 'snowFall', 'precip', 'irrigationExtra', 'glMelt')                                                             # other useful vars
