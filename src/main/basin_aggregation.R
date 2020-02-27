@@ -108,7 +108,7 @@ for(m in mods){
 
 vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")   
 vars = c('snowMelt', 'snowFall', 'precip', 'irrigationExtra', 'glMelt')   
-
+vars = c('precip')
 mods  = c("CanESM2", 
           "CNRM-CM5", 
           "MPI-ESM-LR", 
@@ -127,7 +127,7 @@ mods  = c("CanESM2",
           "MIROC-ESM-CHEM", 
           "MRI-CGCM3", 
           "NorESM1-ME")
-rcp = c("rcp85")
+rcp = c("rcp45")
 path.out  = "results"
 years = seq(2006, 2099) 
 

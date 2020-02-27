@@ -85,7 +85,7 @@ extract_ts = function(raster.path, # path to wbm output
     }
   }
 
-  
+  removeTmpFiles(h=6) # remove temporary files older than 6 hours
   out
 }
 
