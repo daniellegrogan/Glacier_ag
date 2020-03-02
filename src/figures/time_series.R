@@ -277,8 +277,46 @@ for(rcp in rcps){
 }
 
 
-### Precip
+### Snowmelt
+snowmelt.files = dir("results/snowMelt/", full.names = T, pattern ="yearly")
 
+all.yrs = seq(1980, 2099)
+hist = read.csv(snowmelt.files[13])
+basins = hist$Basin
+
+rcps = c("rcp26", "rcp45", "rcp60", "rcp85")
+
+for(rcp in rcps){
+  rcp.files = which(grepl(rcp, c(snowmelt.files)))
+  mod.nm.1 = sub("results/snowMelt//", "", snowmelt.files[rcp.files])
+  mod.nm.2 = unlist(lapply(strsplit(mod.nm.1, "_"), FUN = function(x) unlist(x)[1]))
+  
+  for(b in 1:15){
+    hist.basin = append(hist[b,3:ncol(hist)], rep(NA, (length(all.yrs) - (ncol(hist)-2))))
+    names(hist.basin) = c(all.yrs)
+    
+    png(paste("figures/snowMelt_annual_ts/", basins[b], "_snowMelt_", rcp, "_yearly.png", sep=""), 
+        res=300, height=6, width=12, unit="in")
+    par(mar=c(5.1, 4.5, 4.1, 2.1))
+    plot(all.yrs, as.numeric(hist.basin), type='l', ylim=c(0, 2*max(as.numeric(hist.basin), na.rm=T)), 
+         main = paste(basins[b], "Annual Snow Melt", rcp),
+         xlab = "Year", ylab = expression(paste("Snow Melt (km"^3~"year"^-1~")")))
+    for(f in 1:length(rcp.files)){
+      fut = read.csv(precip.files[rcp.files[f]])
+      fut = subset(fut, select=c(grepl("X", colnames(fut))))
+      fut = append(rep(NA, 26), fut[b,2:ncol(fut)])
+      names(fut) = c(all.yrs)
+      lines(all.yrs, as.numeric(fut), col=cols[f])
+    }
+    dev.off()
+    #legend("topright", lty=rep(1,19), col=cols, legend=mod.nm.2)
+  }
+  
+}
+
+
+
+### Precip
 precip.files = dir("results/precip/", full.names = T, pattern ="yearly")
 
 all.yrs = seq(1980, 2099)
