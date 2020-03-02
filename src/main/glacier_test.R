@@ -167,4 +167,23 @@ for(v in vars){
               NAflag    = -9999)
 }
 
-# EOF
+#######################################################################################################################################
+# SCRATCH
+
+icemelt = read.csv("results/Glacier_ice_melt/GFDL-CM3_rcp26_glacier_melt_basins_monthly.csv")
+
+basins = icemelt$X
+for(b in 1:15){
+  plot(as.numeric(icemelt[b,2:ncol(icemelt)]), type='l', main = basins[b])
+}
+
+
+
+
+#
+snowmelt.m = read.csv("results/snowMelt/ERA_hist_basin_snowMelt_km3_1980_2009_monthly.csv")
+snowmelt.y = read.csv("results/snowMelt/ERA_hist_basin_snowMelt_km3_1980_2009_yearly.csv")
+
+for(b in 1:15){
+  plot(as.numeric(snowmelt.y[b,3:ncol(snowmelt.y)]), type='l', main = basins[b])
+}

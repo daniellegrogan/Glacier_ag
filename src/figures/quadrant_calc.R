@@ -15,8 +15,8 @@ hist.icemlt = read.csv("results/Glacier_ice_melt/ERA_hist_glacier_melt_basins_19
 
 md.yr.str = "2040_2069"
 lt.yr.str = "2070_2099"
-mods = c("CCSM4", "MIROC5")
-rcps = c("rcp45", "rcp85")
+mods = c("bcc-csm1-1", "CCSM4", "CanESM2", "CESM1-CAM5", "CNRM-CM5", "CSIRO-Mk3-6-0", "NorESM1-M" )
+rcps = c("rcp85")
 
 diff.precip = data.frame(matrix(nr=nrow(hist.icemlt), nc=length(mods)*length(rcps)*2))
 diff.icemlt = data.frame(matrix(nr=nrow(hist.icemlt), nc=length(mods)*length(rcps)*2))

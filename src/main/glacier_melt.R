@@ -94,6 +94,9 @@ mod.matrix = sub(" ", "", mod.matrix)
 mapply(function(x,y) glacier_agg(x, y, path.base, var, shp, shp.names), mod.matrix, rcps.4)
 mapply(function(x,y) glacier_melt_y(x, y), mod.matrix, rcps.4)
 
+# single model, rcp
+glacier_agg(gcm = "GFDL-CM3", rcp = "rcp26", path.base, var, shp, shp.names)
+glacier_melt_y(gcm = "GFDL-CM3", rcp = "rcp26")
 
 ## 1c. for ERA_hist
 out.nm = file.path("results/Glacier_ice_melt", paste("ERA_hist_glacier", var, "basins_m.csv", sep = "_"))

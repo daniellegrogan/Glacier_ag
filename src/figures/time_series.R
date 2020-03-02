@@ -258,20 +258,24 @@ for(rcp in rcps){
     hist.basin = append(hist[b,2:ncol(hist)], rep(NA, (length(all.yrs) - (ncol(hist)-1))))
     names(hist.basin) = c(all.yrs)
     
-    png(paste("figures/GlacierIceMelt_annual_ts/", basins[b], "_Glacier_Ice_Melt_", rcp, "_yearly.png", sep=""), 
-        res=300, height=6, width=12, unit="in")
-    par(mar=c(5.1, 4.5, 4.1, 2.1))
-    plot(all.yrs, as.numeric(hist.basin), type='l', ylim=c(0, 2*max(as.numeric(hist.basin), na.rm=T)), 
-         main = paste(basins[b], "Annual Glacier Ice Melt", rcp),
-         xlab = "Year", ylab = expression(paste("Glacier Ice Melt (km"^3~"year"^-1~")")))
+   # png(paste("figures/GlacierIceMelt_annual_ts/", basins[b], "_Glacier_Ice_Melt_", rcp, "_yearly.png", sep=""), 
+   #     res=300, height=6, width=12, unit="in")
+   # par(mar=c(5.1, 4.5, 4.1, 2.1))
+   # plot(all.yrs, as.numeric(hist.basin), type='l', ylim=c(0, 2*max(as.numeric(hist.basin), na.rm=T)), 
+   #      main = paste(basins[b], "Annual Glacier Ice Melt", rcp),
+    #     xlab = "Year", ylab = expression(paste("Glacier Ice Melt (km"^3~"year"^-1~")")))
     for(f in 1:length(rcp.files)){
+      plot(all.yrs, as.numeric(hist.basin), type='l', ylim=c(0, 2*max(as.numeric(hist.basin), na.rm=T)), 
+           main = paste(basins[b], icemelt.files[rcp.files[f]]),
+           xlab = "Year", ylab = expression(paste("Glacier Ice Melt (km"^3~"year"^-1~")")))
+      
       fut = read.csv(icemelt.files[rcp.files[f]])
       fut = append(rep(NA, 20), fut[b,2:ncol(fut)])
       names(fut) = c(all.yrs)
       lines(all.yrs, as.numeric(fut), col=cols[f])
     }
-    dev.off()
-    #legend("topright", lty=rep(1,19), col=cols, legend=mod.nm.2)
+   # dev.off()
+    legend("topright", lty=rep(1,19), col=cols, legend=mod.nm.2)
   }
   
 }
@@ -281,7 +285,7 @@ for(rcp in rcps){
 snowmelt.files = dir("results/snowMelt/", full.names = T, pattern ="yearly")
 
 all.yrs = seq(1980, 2099)
-hist = read.csv(snowmelt.files[13])
+hist = read.csv("results/snowMelt/ERA_hist_basin_snowMelt_km3_1980_2009_yearly.csv")
 basins = hist$Basin
 
 rcps = c("rcp26", "rcp45", "rcp60", "rcp85")
@@ -302,16 +306,16 @@ for(rcp in rcps){
          main = paste(basins[b], "Annual Snow Melt", rcp),
          xlab = "Year", ylab = expression(paste("Snow Melt (km"^3~"year"^-1~")")))
     for(f in 1:length(rcp.files)){
-      fut = read.csv(precip.files[rcp.files[f]])
-      fut = subset(fut, select=c(grepl("X", colnames(fut))))
-      fut = append(rep(NA, 26), fut[b,2:ncol(fut)])
+      fut = read.csv(snowmelt.files[rcp.files[f]])
+      fut = subset(fut, select=c(grepl("2", colnames(fut))))
+      fut = append(rep(NA, 26), fut[b,1:ncol(fut)])
       names(fut) = c(all.yrs)
       lines(all.yrs, as.numeric(fut), col=cols[f])
     }
     dev.off()
     #legend("topright", lty=rep(1,19), col=cols, legend=mod.nm.2)
   }
-  
+  print(rcp)
 }
 
 
@@ -350,10 +354,10 @@ for(rcp in rcps){
     dev.off()
     #legend("topright", lty=rep(1,19), col=cols, legend=mod.nm.2)
   }
-  
+  print(rcp)
 }
 #######################################################################################################################################
-# box plot: 
+# bar plot: 
 # facet each month, one bar each for historical, mid century, late century
 
 # historical
@@ -371,70 +375,320 @@ nonMelt.hist   = read.csv(paste("results/GrossIrr_mm_pgn/",  m.char, "_basin_Gro
 UGW.hist       = read.csv(paste("results/GrossIrr_mm_pu/",   m.char, "_basin_GrossIrr_mm_pu_km3_",    yr.char, "_mc.csv", sep=""))   
 
 # mid century
-mod ="CanESM2"
-rcp = "rcp85"
-if(mod == "ERA_hist"){
-  m.char = mod
-  yr.char = "1980_2009"
-}else{
-  m.char = paste(mod, rcp, sep="_")
-}
-yr.char = "2040_2069"
-Rain.mid      = read.csv(paste("results/GrossIrr_mm_pr/",   m.char, "_basin_GrossIrr_mm_pr_km3_",    yr.char, "_mc.csv", sep=""))     
-snowMelt.mid  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
-iceMelt.mid   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
-nonMelt.mid   = read.csv(paste("results/GrossIrr_mm_pgn/",  m.char, "_basin_GrossIrr_mm_pgn_km3_",   yr.char, "_mc.csv", sep=""))      
-UGW.mid       = read.csv(paste("results/GrossIrr_mm_pu/",   m.char, "_basin_GrossIrr_mm_pu_km3_",    yr.char, "_mc.csv", sep=""))   
-
-# Late century
-mod ="CanESM2"
-rcp = "rcp85"
-if(mod == "ERA_hist"){
-  m.char = mod
-  yr.char = "1980_2009"
-}else{
-  m.char = paste(mod, rcp, sep="_")
-}
-yr.char = "2070_2099"
-Rain.late      = read.csv(paste("results/GrossIrr_mm_pr/",   m.char, "_basin_GrossIrr_mm_pr_km3_",    yr.char, "_mc.csv", sep=""))     
-snowMelt.late  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
-iceMelt.late   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
-nonMelt.late   = read.csv(paste("results/GrossIrr_mm_pgn/",  m.char, "_basin_GrossIrr_mm_pgn_km3_",   yr.char, "_mc.csv", sep=""))      
-UGW.late       = read.csv(paste("results/GrossIrr_mm_pu/",   m.char, "_basin_GrossIrr_mm_pu_km3_",    yr.char, "_mc.csv", sep=""))   
-test = (Rain.mid == Rain.late)
-
-for(b in 1:15){
-  # create a dataset
-  month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-  Month = unlist(lapply(month.names, FUN=function(x) rep(x,5*3)))
-  period.names = c(rep("Historical",5), rep("Mid Century",5), rep("Late Century",5))
-  Period = rep(period.names, 12)
-  Source = rep(c("Rain", "Snow Melt", "Glacier Ice Melt", "Glacier Non-ice Runoff", "Unsustainable"), 12*3)
-  value  = mat.or.vec(nr=12*5*3, nc=1) 
-  for(m in 1:12){
-    st.row = (m-1)*15 + 1
-    value[st.row:(st.row+4)]       = c(Rain.hist[b,m+1], snowMelt.hist[b,m+1], iceMelt.hist[b,m+1], nonMelt.hist[b,m+1], -UGW.hist[b,m+1])
-    value[(st.row+5):(st.row+9)]   = c(Rain.mid[b,m+1], snowMelt.mid[b,m+1], iceMelt.mid[b,m+1], nonMelt.mid[b,m+1], -UGW.mid[b,m+1])
-    value[(st.row+10):(st.row+14)] = c(Rain.late[b,m+1], snowMelt.late[b,m+1], iceMelt.late[b,m+1], nonMelt.late[b,m+1], -UGW.late[b,m+1])
+mods = c("CCSM4", "CanESM2", "NorESM1-M", "CESM1-CAM5", "CNRM-CM5")
+for(mod in mods){
+  rcp = "rcp85"
+  if(mod == "ERA_hist"){
+    m.char = mod
+    yr.char = "1980_2009"
+  }else{
+    m.char = paste(mod, rcp, sep="_")
   }
-  source.data = as.data.frame(cbind(Month, Source, Period, unlist(value)))
-  source.data$Month <- factor(source.data$Month, levels = month.names)
+  yr.char = "2040_2069"
+  Rain.mid      = read.csv(paste("results/GrossIrr_mm_pr/",   m.char, "_basin_GrossIrr_mm_pr_km3_",    yr.char, "_mc.csv", sep=""))     
+  snowMelt.mid  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
+  iceMelt.mid   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
+  nonMelt.mid   = read.csv(paste("results/GrossIrr_mm_pgn/",  m.char, "_basin_GrossIrr_mm_pgn_km3_",   yr.char, "_mc.csv", sep=""))      
+  UGW.mid       = read.csv(paste("results/GrossIrr_mm_pu/",   m.char, "_basin_GrossIrr_mm_pu_km3_",    yr.char, "_mc.csv", sep=""))   
   
-  bp = ggplot() + 
-    geom_bar(data = source.data, position="stack", stat="identity", aes(fill=Source, y=value, x=Period)) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    scale_fill_brewer(palette="Set2") +
-    facet_grid(~Month, switch='x') +
-    labs(y = expression(paste("Irrigation Water Source (km"^3~"month"^-1~")")), 
-         title = paste(basins[b], m.char)) +
-    theme_classic() 
-  ggsave(filename = paste(m.char, basins[b], "basin_irrigation_water_use", yr.char, "mc_BarChart_Climatologies.png", sep="_"),
-         plot = bp,
-         device = "png",
-         path = "figures/Water_Use",
-         scale = 1, width = 12, height = 4, units = c("in"),
-         dpi = 300)
+  # Late century
+  if(mod == "ERA_hist"){
+    m.char = mod
+    yr.char = "1980_2009"
+  }else{
+    m.char = paste(mod, rcp, sep="_")
+  }
+  yr.char = "2070_2099"
+  Rain.late      = read.csv(paste("results/GrossIrr_mm_pr/",   m.char, "_basin_GrossIrr_mm_pr_km3_",    yr.char, "_mc.csv", sep=""))     
+  snowMelt.late  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
+  iceMelt.late   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
+  nonMelt.late   = read.csv(paste("results/GrossIrr_mm_pgn/",  m.char, "_basin_GrossIrr_mm_pgn_km3_",   yr.char, "_mc.csv", sep=""))      
+  UGW.late       = read.csv(paste("results/GrossIrr_mm_pu/",   m.char, "_basin_GrossIrr_mm_pu_km3_",    yr.char, "_mc.csv", sep=""))   
+  test = (Rain.mid == Rain.late)
+  
+  for(b in 1:15){
+    # create a dataset
+    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    Month = unlist(lapply(month.names, FUN=function(x) rep(x,5*3)))
+    #period.names = c(rep("Historical",5), rep("Mid Century",5), rep("Late Century",5))
+    period.names = c(rep("H",5), rep("M",5), rep("L",5))
+    Period = rep(period.names, 12)
+    Source = rep(c("Rain", "Snow Melt", "Glacier Ice Melt", "Glacier Non-ice Runoff", "Unsustainable"), 12*3)
+    value  = mat.or.vec(nr=12*5*3, nc=1) 
+    for(m in 1:12){
+      st.row = (m-1)*15 + 1
+      value[st.row:(st.row+4)]       = c(Rain.hist[b,m+1], snowMelt.hist[b,m+1], iceMelt.hist[b,m+1], nonMelt.hist[b,m+1], -UGW.hist[b,m+1])
+      value[(st.row+5):(st.row+9)]   = c(Rain.mid[b,m+1], snowMelt.mid[b,m+1], iceMelt.mid[b,m+1], nonMelt.mid[b,m+1], -UGW.mid[b,m+1])
+      value[(st.row+10):(st.row+14)] = c(Rain.late[b,m+1], snowMelt.late[b,m+1], iceMelt.late[b,m+1], nonMelt.late[b,m+1], -UGW.late[b,m+1])
+    }
+    source.data = as.data.frame(cbind(Month, Source, Period, unlist(value)))
+    source.data$Month <- factor(source.data$Month, levels = month.names)
+    source.data$Period <- factor(source.data$Period, levels = c("H", "M", "L"))
+    
+    bp = ggplot() + 
+      geom_bar(data = source.data, position="stack", stat="identity", aes(fill=Source, y=value, x=Period)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_fill_brewer(palette="Set2") +
+      facet_grid(~Month, switch='x') +
+      labs(y = expression(paste("Irrigation Water Source (km"^3~"month"^-1~")")), 
+           title = paste(basins[b], m.char)) +
+      theme_classic() 
+    ggsave(filename = paste(m.char, basins[b], "basin_irrigation_water_use", yr.char, "mc_BarChart_Climatologies.png", sep="_"),
+           plot = bp,
+           device = "png",
+           path = "figures/Water_Use",
+           scale = 1, width = 12, height = 4, units = c("in"),
+           dpi = 300)
+  }
+  print(mod)
 }
+
+#######################################################################################################################################
+# barplot: water supply vs use
+
+
+
+# historical
+mod ="ERA_hist"
+if(mod == "ERA_hist"){
+  m.char = mod
+  yr.char = "1980_2009"
+}else{
+  m.char = paste(mod, rcp, sep="_")
+}
+snowMelt.use.hist  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
+iceMelt.use.hist   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
+
+snowMelt.supply.hist  = read.csv(paste("results/snowMelt/",   m.char, "_basin_snowMelt_km3_",    yr.char, "_mc.csv", sep=""))     
+iceMelt.supply.hist   = read.csv(paste("results/Glacier_ice_melt/",  m.char, "_glacier_melt_basins_",   yr.char, "_mc.csv", sep=""))      
+
+# mid century
+mods = c("CCSM4", "CanESM2", "NorESM1-M", "CESM1-CAM5", "CNRM-CM5")
+
+for(mod in mods){
+  rcp = "rcp85"
+  if(mod == "ERA_hist"){
+    m.char = mod
+    yr.char = "1980_2009"
+  }else{
+    m.char = paste(mod, rcp, sep="_")
+  }
+  yr.char = "2040_2069"
+  snowMelt.use.mid  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
+  iceMelt.use.mid   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
+
+  snowMelt.supply.mid  = read.csv(paste("results/snowMelt/",   m.char, "_basin_snowMelt_km3_",    yr.char, "_mc.csv", sep=""))     
+  iceMelt.supply.mid   = read.csv(paste("results/Glacier_ice_melt/",  m.char, "_glacier_melt_basins_",   yr.char, "_mc.csv", sep=""))      
+  
+  # Late century
+  if(mod == "ERA_hist"){
+    m.char = mod
+    yr.char = "1980_2009"
+  }else{
+    m.char = paste(mod, rcp, sep="_")
+  }
+  yr.char = "2070_2099"
+  snowMelt.use.late  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_mc.csv", sep=""))     
+  iceMelt.use.late   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_mc.csv", sep=""))      
+  
+  snowMelt.supply.late  = read.csv(paste("results/snowMelt/",   m.char, "_basin_snowMelt_km3_",    yr.char, "_mc.csv", sep=""))     
+  iceMelt.supply.late   = read.csv(paste("results/Glacier_ice_melt/",  m.char, "_glacier_melt_basins_",   yr.char, "_mc.csv", sep=""))      
+  
+  
+  for(b in 1:15){
+    # create a dataset
+    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    Month = unlist(lapply(month.names, FUN=function(x) rep(x,3*2)))
+    period.names = c(rep("H",2), rep("M",2), rep("L",2))
+    Period = rep(period.names, 12)
+    Metric = rep(c("Supply", "Irr_Use"), 12*3)
+    value  = mat.or.vec(nr=12*2*3, nc=1) 
+    for(m in 1:12){
+      st.row = (m-1)*6 + 1
+      value[st.row:(st.row+1)]       = c(iceMelt.supply.hist[b,m+1], iceMelt.use.hist[b,m+1])
+      value[(st.row+1):(st.row+2)]   = c(iceMelt.supply.mid[b,m+1], iceMelt.use.mid[b,m+1])
+      value[(st.row+3):(st.row+4)]   = c(iceMelt.supply.late[b,m+1], iceMelt.use.late[b,m+1])
+    }
+    source.data = as.data.frame(cbind(Month, Metric, Period, unlist(value)))
+    source.data$Month  <- factor(source.data$Month, levels = month.names)
+    source.data$Period <- factor(source.data$Period, levels = c("H", "M", "L"))
+    source.data$Metric <- factor(source.data$Metric, levels = c("Supply", "Irr_Use"))
+    
+    bp = ggplot() + 
+      geom_bar(data = source.data, position=position_dodge(), stat="identity", aes(fill=Metric, y=value, x=Period)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_fill_brewer(palette="Paired") +
+      facet_grid(~Month, switch='x') +
+      labs(y = expression(paste("Glacier Ice Melt Supply and Use (km"^3~"month"^-1~")")), 
+           title = paste(basins[b], m.char)) +
+      theme_classic() 
+    ggsave(filename = paste(m.char, basins[b], "basin_irrigation_Glacier_ice_melt_supply_and_use_mc.png", sep="_"),
+           plot = bp,
+           device = "png",
+           path = "figures/Water_supply_and_use",
+           scale = 1, width = 12, height = 4, units = c("in"),
+           dpi = 300)
+  }
+  
+  
+  for(b in 1:15){
+    # create a dataset
+    month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    Month = unlist(lapply(month.names, FUN=function(x) rep(x,3*2)))
+    period.names = c(rep("H",2), rep("M",2), rep("L",2))
+    Period = rep(period.names, 12)
+    Metric = rep(c("Supply", "Irr_Use"), 12*3)
+    value  = mat.or.vec(nr=12*2*3, nc=1) 
+    for(m in 1:12){
+      st.row = (m-1)*6 + 1
+      value[st.row:(st.row+1)]       = c(snowMelt.supply.hist[b,m+1], snowMelt.use.hist[b,m+1])
+      value[(st.row+1):(st.row+2)]   = c(snowMelt.supply.mid[b,m+1], snowMelt.use.mid[b,m+1])
+      value[(st.row+3):(st.row+4)]   = c(snowMelt.supply.late[b,m+1], snowMelt.use.late[b,m+1])
+    }
+    source.data = as.data.frame(cbind(Month, Metric, Period, unlist(value)))
+    source.data$Month  <- factor(source.data$Month, levels = month.names)
+    source.data$Period <- factor(source.data$Period, levels = c("H", "M", "L"))
+    source.data$Metric <- factor(source.data$Metric, levels = c("Supply", "Irr_Use"))
+    
+    bp = ggplot() + 
+      geom_bar(data = source.data, position=position_dodge(), stat="identity", aes(fill=Metric, y=value, x=Period)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_fill_brewer(palette="Paired") +
+      facet_grid(~Month, switch='x') +
+      labs(y = expression(paste("Snowmelt Supply and Use (km"^3~"month"^-1~")")), 
+           title = paste(basins[b], m.char)) +
+      theme_classic() 
+    
+    ggsave(filename = paste(m.char, basins[b], "basin_irrigation_Snowmelt_supply_and_use_mc.png", sep="_"),
+           plot = bp,
+           device = "png",
+           path = "figures/Water_supply_and_use",
+           scale = 1, width = 12, height = 4, units = c("in"),
+           dpi = 300)
+  }
+ print(mod)
+}
+
+
+
+
+### ANNUAL
+# historical
+mod ="ERA_hist"
+if(mod == "ERA_hist"){
+  m.char = mod
+  yr.char = "1980_2009"
+}else{
+  m.char = paste(mod, rcp, sep="_")
+}
+snowMelt.use.hist  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_yc.csv", sep=""))     
+iceMelt.use.hist   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_yc.csv", sep=""))      
+
+snowMelt.supply.hist  = read.csv(paste("results/snowMelt/",   m.char, "_basin_snowMelt_km3_",    yr.char, "_yc.csv", sep=""))     
+iceMelt.supply.hist   = read.csv(paste("results/Glacier_ice_melt/",  m.char, "_glacier_melt_basins_",   yr.char, "_yc.csv", sep=""))      
+
+# mid century
+mods = c("CCSM4", "CanESM2", "NorESM1-M", "CESM1-CAM5", "CNRM-CM5")
+
+for(mod in mods){
+  rcp = "rcp85"
+  if(mod == "ERA_hist"){
+    m.char = mod
+    yr.char = "1980_2009"
+  }else{
+    m.char = paste(mod, rcp, sep="_")
+  }
+  yr.char = "2040_2069"
+  snowMelt.use.mid  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_yc.csv", sep=""))     
+  iceMelt.use.mid   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_yc.csv", sep=""))      
+  
+  snowMelt.supply.mid  = read.csv(paste("results/snowMelt/",   m.char, "_basin_snowMelt_km3_",    yr.char, "_yc.csv", sep=""))     
+  iceMelt.supply.mid   = read.csv(paste("results/Glacier_ice_melt/",  m.char, "_glacier_melt_basins_",   yr.char, "_yc.csv", sep=""))      
+  
+  # Late century
+  if(mod == "ERA_hist"){
+    m.char = mod
+    yr.char = "1980_2009"
+  }else{
+    m.char = paste(mod, rcp, sep="_")
+  }
+  yr.char = "2070_2099"
+  snowMelt.use.late  = read.csv(paste("results/GrossIrr_mm_ps/",   m.char, "_basin_GrossIrr_mm_ps_km3_",    yr.char, "_yc.csv", sep=""))     
+  iceMelt.use.late   = read.csv(paste("results/GrossIrr_mm_pgi/",  m.char, "_basin_GrossIrr_mm_pgi_km3_",   yr.char, "_yc.csv", sep=""))      
+  
+  snowMelt.supply.late  = read.csv(paste("results/snowMelt/",   m.char, "_basin_snowMelt_km3_",    yr.char, "_yc.csv", sep=""))     
+  iceMelt.supply.late   = read.csv(paste("results/Glacier_ice_melt/",  m.char, "_glacier_melt_basins_",   yr.char, "_yc.csv", sep=""))      
+  
+  
+  for(b in 1:15){
+    # create a dataset
+    period.names = c(rep("H",2), rep("M",2), rep("L",2))
+    Period = rep(period.names, 1)
+    Metric = rep(c("Supply", "Irr_Use"), 3)
+    value  = mat.or.vec(nr=2*3, nc=1) 
+
+    value[1:2]   = c(iceMelt.supply.hist$Mean[b], iceMelt.use.hist$Mean[b])
+    value[3:4]   = c(iceMelt.supply.mid$Mean[b], iceMelt.use.mid$Mean[b])
+    value[5:6]   = c(iceMelt.supply.late$Mean[b], iceMelt.use.late$Mean[b])
+
+    source.data = as.data.frame(cbind(Metric, Period, unlist(value)))
+    source.data$Period <- factor(source.data$Period, levels = c("H", "M", "L"))
+    source.data$Metric <- factor(source.data$Metric, levels = c("Supply", "Irr_Use"))
+    #colnames(source.data)[3] = "Value"
+    bp = ggplot() + 
+      geom_bar(data = source.data, position=position_dodge(), 
+               stat="identity", aes(fill=Metric, y=value, x=Period)) +
+      scale_fill_brewer(palette="Paired") +
+      labs(y = expression(paste("Glacier Ice Melt Supply and Use (km"^3~"year"^-1~")")), 
+           title = paste(basins[b], m.char)) +
+      theme_classic() 
+    
+    ggsave(filename = paste(m.char, basins[b], "basin_irrigation_Glacier_ice_melt_supply_and_use_yc.png", sep="_"),
+           plot = bp,
+           device = "png",
+           path = "figures/Water_supply_and_use",
+           scale = 1, width = 6, height = 4, units = c("in"),
+           dpi = 300)
+  }
+  
+  
+  for(b in 1:15){
+    # create a dataset
+    # create a dataset
+    period.names = c(rep("H",2), rep("M",2), rep("L",2))
+    Period = rep(period.names, 1)
+    Metric = rep(c("Supply", "Irr_Use"), 3)
+    value  = mat.or.vec(nr=2*3, nc=1) 
+    
+    value[1:2]   = c(snowMelt.supply.hist$Mean[b], snowMelt.use.hist$Mean[b])
+    value[3:4]   = c(snowMelt.supply.mid$Mean[b], snowMelt.use.mid$Mean[b])
+    value[5:6]   = c(snowMelt.supply.late$Mean[b], snowMelt.use.late$Mean[b])
+    
+    source.data = as.data.frame(cbind(Metric, Period, unlist(value)))
+    source.data$Period <- factor(source.data$Period, levels = c("H", "M", "L"))
+    source.data$Metric <- factor(source.data$Metric, levels = c("Supply", "Irr_Use"))
+    
+    bp = ggplot() + 
+      geom_bar(data = source.data, position=position_dodge(), stat="identity", aes(fill=Metric, y=value, x=Period)) +
+      scale_fill_brewer(palette="Paired") +
+      labs(y = expression(paste("Snowmelt Supply and Use (km"^3~"year"^-1~")")), 
+           title = paste(basins[b], m.char)) +
+      theme_classic() 
+    ggsave(filename = paste(m.char, basins[b], "basin_irrigation_Snowmelt_supply_and_use_yc.png", sep="_"),
+           plot = bp,
+           device = "png",
+           path = "figures/Water_supply_and_use",
+           scale = 1, width = 6, height = 4, units = c("in"),
+           dpi = 300)
+  }
+  print(mod)
+}
+
+
+
+
+
+
 
 
 

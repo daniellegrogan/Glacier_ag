@@ -106,9 +106,6 @@ for(m in mods){
 
 ############ GCM Future ################
 
-vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")   
-vars = c('snowMelt', 'snowFall', 'precip', 'irrigationExtra', 'glMelt')   
-vars = c('precip')
 vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu",   # Gross irrigation variables
          "irrigationFlow", "IrrFlow_mm_pgi", "IrrFlow_mm_pgn", "IrrFlow_mm_ps", "IrrFlow_mm_pr", "IrrFlow_mm_pu",         # surface water irrigation variables
          "irrigationGrwt", "IrrGrwt_mm_pgi", "IrrGrwt_mm_pgn", "IrrGrwt_mm_ps", "IrrGrwt_mm_pr", "IrrGrwt_mm_pu",         # ground water irrigation variables
@@ -133,21 +130,7 @@ mods  = c("CanESM2",
           "MIROC-ESM-CHEM", 
           "MRI-CGCM3", 
           "NorESM1-ME")
-
-vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", 
-         "GrossIrr_mm_pr", "GrossIrr_mm_pu", 
-         'snowMelt', 'snowFall', 'precip', 'irrigationExtra', 'glMelt')   
-
-mods  = c("IPSL-CM5A-LR",  
-          "IPSL-CM5A-MR",  
-          "MIROC-ESM", 
-          "MIROC-ESM-CHEM", 
-          "MRI-CGCM3", 
-          "NorESM1-ME")
-
-vars = c( "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_ps", 
-          "GrossIrr_mm_pr", "GrossIrr_mm_pu")
-rcp = c("rcp85")
+rcp = c("rcp26", "rcp45", "rcp85")
 path.out  = "results"
 years = seq(2006, 2099) 
 
@@ -160,23 +143,6 @@ for(m in mods){
                                                         var,
                                                         row.nm = as.character(basins$name),
                                                         out.nm = paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")))
-    # sum monthly aggregates to yearly
-    yearly.agg = lapply(vars, function(var) monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                                                              out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")))
-    
-    for(var in vars){
-      clim.yrs  = seq(2040, 2069)
-      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                    years = clim.yrs,
-                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
-    }
-    
-    for(var in vars){
-      clim.yrs  = seq(2070, 2099)
-      monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                    years = clim.yrs,
-                    out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
-    }
     removeTmpFiles(h=4) # remove temporary files older than 4 hours
   }
 }
@@ -217,26 +183,75 @@ years = seq(2006, 2099)
 
 for(m in mods){
   for(r in rcp){
-    
     for(var in vars){
-    # check if file exist
-    m.file = paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")
-    if(file.exists(m.file)){
+      # check if file exist
+      m.file = paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")
+      if(file.exists(m.file)){
+        
         monthly_to_yearly(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
                           out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep=""))
-      
+        
+        
         clim.yrs  = seq(2040, 2069)
-        monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                      years = clim.yrs,
-                      out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
-
+        yearly_to_yc(data.y = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")),
+                     years = clim.yrs,
+                     out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_yc.csv", sep=""))
+        
+        # monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+        #               years = clim.yrs,
+        #               out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+        
+        
         clim.yrs  = seq(2070, 2099)
-        monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-                      years = clim.yrs,
-                      out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+        yearly_to_yc(data.y = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")),
+                     years = clim.yrs,
+                     out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_yc.csv", sep=""))
+        
+        # monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+        #               years = clim.yrs,
+        #               out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
       }
     }
   }
 }
 
 
+
+# glacier ice melt
+
+mods  = c("CanESM2", 
+          "CNRM-CM5", 
+          "MPI-ESM-LR", 
+          "NorESM1-M", 
+          "MIROC5",
+          "CCSM4",
+          "bcc-csm1-1", 
+          "CESM1-CAM5", 
+          "CSIRO-Mk3-6-0",
+          "GFDL-CM3",
+          "GFDL-ESM2M", 
+          "GISS-E2-R", 
+          "IPSL-CM5A-LR",  
+          "IPSL-CM5A-MR",  
+          "MIROC-ESM", 
+          "MIROC-ESM-CHEM", 
+          "MRI-CGCM3", 
+          "NorESM1-ME")
+
+rcp = c("rcp26", "rcp45", "rcp85")
+for(m in mods){
+  for(r in rcp){
+    clim.yrs  = seq(2040, 2069)
+    monthly_to_mc(data.months = read.csv(paste("results/Glacier_ice_melt/", m, "_", r, "_glacier_melt_basins_monthly.csv", sep="")), 
+                  clim.yrs, 
+                  out.nm = paste("results/Glacier_ice_melt/", m, "_", r, "_glacier_melt_basins_", min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+    
+    clim.yrs  = seq(2070, 2099)
+    monthly_to_mc(data.months = read.csv(paste("results/Glacier_ice_melt/", m, "_", r, "_glacier_melt_basins_monthly.csv", sep="")), 
+                  clim.yrs, 
+                  out.nm = paste("results/Glacier_ice_melt/", m, "_", r, "_glacier_melt_basins_", min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+    
+  }
+}
+
+# Rainfall
