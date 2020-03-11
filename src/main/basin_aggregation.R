@@ -180,6 +180,8 @@ mods  = c("CanESM2",
           "MRI-CGCM3", 
           "NorESM1-ME")
 
+vars = c("etIrrCrops", "etIrrCrops_mm_pgi", "etIrrCrops_mm_pgn", "etIrrCrops_mm_ps", "etIrrCrops_mm_pr", "etIrrCrops_mm_pu")
+
 rcp = c("rcp26", "rcp45", "rcp60", "rcp85")
 path.out  = "results"
 years = seq(2006, 2099) 
@@ -200,9 +202,9 @@ for(m in mods){
                      years = clim.yrs,
                      out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_yc.csv", sep=""))
         
-        # monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-        #               years = clim.yrs,
-        #               out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+        monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                      years = clim.yrs,
+                      out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
         
         
         clim.yrs  = seq(2070, 2099)
@@ -210,9 +212,9 @@ for(m in mods){
                      years = clim.yrs,
                      out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_yc.csv", sep=""))
         
-        # monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
-        #               years = clim.yrs,
-        #               out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
+        monthly_to_mc(data.m = read.csv(paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep="")),
+                      years = clim.yrs,
+                      out.nm =          paste(path.out, "/", var, "/", m, "_", r, "_basin_", var, "_km3_",  min(clim.yrs), "_", max(clim.yrs), "_mc.csv", sep=""))
       }
     }
   }
