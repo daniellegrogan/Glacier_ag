@@ -21,10 +21,25 @@ eval(parse(text=raster_time_ave.script))
 # raster_monthly_ave()  for monthly climatologies
 raster_monthly_ave.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/raster_monthly_ave.R", ssl.verifypeer=F)
 eval(parse(text=raster_monthly_ave.script))
+
+# create_dir()
+create_dir.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/create_dir.R", ssl.verifypeer=F)
+eval(parse(text=create_dir.script))
+
 #####################################################################################################################################
 # MAIN #
 base.path = ("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12")
-vars = c("discharge", "discharge_m3s_pgi", "discharge_m3s_pgn", "discharge_m3s_pu", "discharge_m3s_ps", "discharge_m3s_pr")
+#vars = c("discharge", "discharge_m3s_pgi", "discharge_m3s_pgn", "discharge_m3s_pu", "discharge_m3s_ps", "discharge_m3s_pr")
+# vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn")
+# vars = c("etIrrCrops", "etIrrCrops_mm_pgi", "etIrrCrops_mm_pgn", "etIrrCrops_mm_ps", "etIrrCrops_mm_pr", "etIrrCrops_mm_pu")
+# vars = c("GrossIrr_mm_ps", "GrossIrr_mm_pr", "GrossIrr_mm_pu")
+
+vars = c("irrigationFlow", "IrrFlow_mm_pgi", "IrrFlow_mm_pgn", "IrrFlow_mm_ps", "IrrFlow_mm_pr", "IrrFlow_mm_pu",         # surface water irrigation variables
+         "irrigationGrwt", "IrrGrwt_mm_pgi", "IrrGrwt_mm_pgn", "IrrGrwt_mm_ps", "IrrGrwt_mm_pr", "IrrGrwt_mm_pu",         # ground water irrigation variables
+         'runoff', 'irrRunoff', 'snowMelt', 'snowFall', 'precip', 'irrigationGrwt', 'irrigationExtra', 'glMelt',          # water sources
+         'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_mm_pgi')                                                             # other useful vars
+
+lapply(vars, FUN = function(var){create_dir(file.path("results/grid_climatology", var))})
 
 # ERA historical
 mod = "ERA_hist"
@@ -73,7 +88,7 @@ for(r in rcp){
                                                       out.nm = paste(mod, "_", x, "_", min(clim.yrs.early), "_", max(clim.yrs.early), "_mc.nc", sep=""),
                                                       r = 0)
     )
-    print(m)
+    print(mod)
   }
   print(r)
 }
@@ -89,7 +104,7 @@ for(r in rcp){
                                                       out.nm = paste(mod, "_", x, "_", min(clim.yrs.mid), "_", max(clim.yrs.mid), "_mc.nc", sep=""),
                                                       r = 0)
     )
-    print(m)
+    print(mod)
   }
   print(r)
 }
@@ -105,7 +120,7 @@ for(r in rcp){
                                                       out.nm = paste(mod, "_", x, "_", min(clim.yrs.late), "_", max(clim.yrs.late), "_mc.nc", sep=""),
                                                       r = 0)
     )
-    print(m)
+    print(mod)
   }
   print(r)
 }
