@@ -1,8 +1,140 @@
 # sandbox, check problems
 
+library(RCurl)  # enables sourcing R code from github
 library(raster)
+rasterOptions(tmpdir = "/net/usr/spool/")   # set alternative /tmp directory
 library(rgdal)
+library(rgeos)
+library(rasterVis)
 
+### Source functions from other github repos:
+# wbm_load()
+wbm_load.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/wbm_load.R", ssl.verifypeer=F)
+eval(parse(text=wbm_load.script))
+
+# spatial_aggregation()
+spatial_aggregation.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/spatial_aggregation.R", ssl.verifypeer=F)
+eval(parse(text=spatial_aggregation.script))
+
+# create_dir()
+create_dir.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/create_dir.R", ssl.verifypeer=F)
+eval(parse(text=create_dir.script))
+
+### Source functions from within this project:
+file.sources = list.files("src/functions", full.names = T)
+sapply(file.sources, source)
+
+######################################################################################################################################################
+# 2020-06-17  evaluating historical results only
+
+path = "results/grid_climatology"
+var = "discharge_m3s_pgi"
+
+q_base = brick(file.path(path, "discharge/ERA_hist_discharge_1980_2009_mc.nc"))
+q_m3s_pgi = brick(file.path(path, var, paste("ERA_hist_", var, "_1980_2009_mc.nc", sep="")))
+
+q_pgi_frac = q_m3s_pgi/q_base
+names(q_pgi_frac) = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
+coastline = readOGR("data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+coastline = spTransform(coastline, crs(basins))
+
+png("figures/Historical/dicharge_pgi_fraction_1980_2009_mc.png", width = 1500, height=1000, res=130)
+plot(q_pgi_frac)
+plot(basins, add=T)
+dev.off()
+
+q_pgi_frac = mask(q_pgi_frac, basins)
+
+png("figures/Historical/dicharge_pgi_fraction_1980_2009_mc.png", width = 1500, height=1000, res=130)
+plt <- levelplot(q_pgi_frac, col.regions=colorRampPalette(brewer.pal(9,"YlGnBu"))(100))
+plt + latticeExtra::layer(sp.lines(basins, col="black", lwd=0.5)) + latticeExtra::layer(sp.lines(coastline, col="black", lwd=0.5))
+dev.off() 
+
+
+irr_base = brick(file.path(path, "irrigationGross/ERA_hist_irrigationGross_1980_2009_mc.nc"))
+irr_mm_pgi = brick(file.path(path, "GrossIrr_mm_pgi/ERA_hist_GrossIrr_mm_pgi_1980_2009_mc.nc"))
+
+irr_pgi_frac = irr_mm_pgi/irr_base
+names(irr_pgi_frac) = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+# png("figures/Historical/GrossIrr_pgi_fraction_1980_2009_mc.png", width = 1500, height=1000, res=130)
+# plot(irr_pgi_frac)
+# dev.off()
+
+irr_pgi_frac[irr_base == 0] = NA
+irr_pgi_frac = mask(irr_pgi_frac, basins)
+
+png("figures/Historical/GrossIrr_pgi_fraction_1980_2009_mc.png", width = 1500, height=1000, res=130)
+plt <- levelplot(irr_pgi_frac, col.regions=colorRampPalette(brewer.pal(9,"YlGnBu"))(100))
+plt + latticeExtra::layer(sp.lines(basins, col="black", lwd=0.5)) + latticeExtra::layer(sp.lines(coastline, col="black", lwd=0.5))
+dev.off() 
+
+# scatter plot: for each grid cell with irrigation, plot gross irr vs fraction pgi 
+irr_pgi_frac.list = getValues(irr_pgi_frac)
+irr_base.list = getValues(irr_base)
+
+png("figures/Historical/Scatter_IrrPgi_vs_IrrGross_1980_2009_mc.png", width = 1000, height=1000, res=130)
+plot(irr_pgi_frac.list ~ irr_base.list, pch=19, cex=0.5, 
+     main = "Monthly mean grid cell values",
+     xlab = "Gross irrigation (mm/day)", ylab = "Fraction Glacier Ice Melt in Irr")
+dev.off()
+
+# hexbin plots
+library(hexbin)
+library(RColorBrewer)
+
+irr_base.vec = as.vector(irr_base.list)
+irr_pgi.vec = as.vector(irr_pgi_frac.list)
+
+irr = cbind(irr_base.vec, irr_pgi.vec)
+irr = subset(irr, irr[,1] != 0)
+irr = subset(irr, !is.na(irr[,1]))
+irr = subset(irr, !is.na(irr[,2]))
+
+x = irr[,1]
+y = irr[,2]
+bin<-hexbin(x, y, xbins=80)
+my_colors=colorRampPalette(rev(brewer.pal(11,'Spectral')))
+png("figures/Historical/Hexbin_IrrPgi_vs_IrrGross_1980_2009_mc.png", width = 1000, height=1000, res=130)
+gplot.hexbin(bin,  colorcut = colorcut, 
+             xlab = "Gross irrigation (mm/day)", 
+             ylab = "Fraction Glacier Ice Melt in Irrigation",
+             main = "Glacier Ice Melt in Irrigation: grid cells, all basins")
+dev.off()
+
+basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
+
+for(b in 1:15){
+  irr_base_basin = extract(irr_base, basins[b,])[[1]]
+  irr_pgi_frac_basin = extract(irr_pgi_frac, basins[b,])[[1]]
+  
+  irr_base.vec = as.vector(irr_base_basin)
+  irr_pgi.vec = as.vector(irr_pgi_frac_basin)
+  
+  irr = cbind(irr_base.vec, irr_pgi.vec)
+  irr = subset(irr, irr[,1] != 0)
+  irr = subset(irr, !is.na(irr[,1]))
+  irr = subset(irr, !is.na(irr[,2]))
+  
+  x = irr[,1]
+  y = irr[,2]
+  bin<-hexbin(x, y, xbins=80)
+  colorcut = c(0, 1/1000, 1/100, 1/10, 1)
+  png(paste("figures/Historical/", basins$name[b], "_Hexbin_IrrPgi_vs_IrrGross_1980_2009_mc.png", sep=""), 
+      width = 1200, height=1000, res=130)
+  gplot.hexbin(bin,  colorcut = colorcut, 
+               xlab = "Gross irrigation (mm/day)", 
+               ylab = "Fraction Glacier Ice Melt in Irrigation",
+               main = paste(basins$name[b],"monthly mean grid cell values"))
+  dev.off()
+}
+
+# hexbin by basin
+
+
+######################################################################################################################################################
 mod.hist = "ERA_hist"
 irrGross_pgi_y_stats  = read.csv(file.path("results", mod.hist, paste(mod.hist, "_basin_GrossIrr_pgi_1980_2016_yearly_stats.csv", sep="")), sep=",")
 irrFlow_pgi_y_stats   = read.csv(file.path("results", mod.hist, paste(mod.hist, "_basin_IrrFlow_pgi_1980_2016_yearly_stats.csv", sep="")), sep=",")
