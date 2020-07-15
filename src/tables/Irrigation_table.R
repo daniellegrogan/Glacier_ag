@@ -20,13 +20,14 @@ format_text = function(mean.val, stdev.val){
 # Table Irr Annual pgi: ERA-Interim historical glacier ice melt, and its contribution to agriculture
 
 mod.hist = "ERA_hist"
-irrGross_pgi_y_stats  = read.csv(paste("results/Irrigation/irrigationGross/", mod.hist, "_basin_GrossIrr_pgi_1980_2016_yearly_stats.csv", sep=""))
-irrFlow_pgi_y_stats   = read.csv(paste("results/Irrigation/irrigationFlow/",  mod.hist, "_basin_IrrFlow_pgi_1980_2016_yearly_stats.csv", sep=""))
-irrGrwt_pgi_y_stats   = read.csv(paste("results/Irrigation/irrigationGrwt/",  mod.hist, "_basin_IrrGrwt_pgi_1980_2016_yearly_stats.csv", sep=""))
+irrGross_pgi_y_stats  = read.csv(paste("results/Irrigation/irrigationGross/", mod.hist, "_basin_GrossIrr_pgi_1980_2009_yearly_stats.csv", sep=""))
+irrFlow_pgi_y_stats   = read.csv(paste("results/Irrigation/irrigationFlow/",  mod.hist, "_basin_IrrFlow_pgi_1980_2009_yearly_stats.csv", sep=""))
+irrGrwt_pgi_y_stats   = read.csv(paste("results/Irrigation/irrigationGrwt/",  mod.hist, "_basin_IrrGrwt_pgi_1980_2009_yearly_stats.csv", sep=""))
 
 # calc mean and stdev for ice melt
-icemelt.y_hist = read.csv(file.path("results/Glacier_ice_melt", paste(mod.hist, "_glacier_melt_basins_y.csv", sep="")), sep="")
+icemelt.y_hist = read.csv(file.path("results/Glacier_ice_melt", paste(mod.hist, "_glacier_melt_basins_yearly.csv", sep="")), sep=",")
 icemelt.y_hist = icemelt.y_hist[2:ncol(icemelt.y_hist)]
+
 all_basin_sums = apply(icemelt.y_hist, c(2), sum)
 icemelt.y_hist[16,] = as.numeric(all_basin_sums)
 
@@ -66,9 +67,9 @@ write.table(table_irr_annual, "results/Tables/Historical_Ice_in_Irr.csv", sep=",
 # Table Irr Annual pgs: ERA-Interim historical snow melt, and its contribution to agriculture
 
 mod.hist = "ERA_hist"
-irrGross_ps_y_stats  = read.csv(paste("results/Irrigation/irrigationGross/", mod.hist, "_basin_GrossIrr_ps_1980_2016_yearly_stats.csv", sep=""))
-irrFlow_ps_y_stats   = read.csv(paste("results/Irrigation/irrigationFlow/",  mod.hist, "_basin_IrrFlow_ps_1980_2016_yearly_stats.csv", sep=""))
-irrGrwt_ps_y_stats   = read.csv(paste("results/Irrigation/irrigationGrwt/",  mod.hist, "_basin_IrrGrwt_ps_1980_2016_yearly_stats.csv", sep=""))
+irrGross_ps_y_stats  = read.csv(paste("results/Irrigation/irrigationGross/", mod.hist, "_basin_GrossIrr_ps_1980_2009_yearly_stats.csv", sep=""))
+irrFlow_ps_y_stats   = read.csv(paste("results/Irrigation/irrigationFlow/",  mod.hist, "_basin_IrrFlow_ps_1980_2009_yearly_stats.csv", sep=""))
+irrGrwt_ps_y_stats   = read.csv(paste("results/Irrigation/irrigationGrwt/",  mod.hist, "_basin_IrrGrwt_ps_1980_2009_yearly_stats.csv", sep=""))
 
 # calc mean and stdev for snow melt
 snowmelt.y_hist = read.csv(file.path("results/snowMelt", paste(mod.hist, "_basin_snowMelt_km3_yearly.csv", sep="")), sep=",")
