@@ -27,6 +27,19 @@ sapply(file.sources, source)
 ######################################################################################################################################################
 # 2020-06-17  evaluating historical results only
 
+######################################################################################################################################################
+# sub-basin regions
+subbasins = raster("/net/nfs/zero/home/WBM_TrANS/data/watershed_regions/HiMAT_full_210_Subset/HiMAT_full_210_Subset_regions.asc")
+plot(subbasins)
+
+subbasins.poly = rasterToPolygons(subbasins, dissolve = T)
+indus = basins[basins$name=="Indus",]
+subbasins.indus = mask(subbasins, indus)
+subbasins.indus.poly = rasterToPolygons(subbasins.indus, dissolve = T)
+plot(subbasins.indus.poly)
+######################################################################################################################################################
+#
+
 path = "results/grid_climatology"
 var = "discharge_m3s_pgi"
 

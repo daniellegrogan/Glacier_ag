@@ -44,6 +44,10 @@ extract_ts = function(raster.path, # path to wbm output
                            raster::brick))
       brk = 365*brk   # convert average mm/day over the year to mm/year
       
+      # column names
+      dt.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
+                     to   = as.Date(paste(max(years), "-12-01", sep="")), 
+                     by   = "year")
       
     }else if(grepl("monthly", c(raster.path))){
       
@@ -64,19 +68,21 @@ extract_ts = function(raster.path, # path to wbm output
       month.data = read.csv("data/days_in_months.csv")
       brk = month.data$days*brk
       
+      # column names
+      dt.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
+                     to   = as.Date(paste(max(years), "-12-01", sep="")), 
+                     by   = "month")
+      
     }
     
     s1 = spatial_aggregation(brk, shp,    s, cell.area, weight, poly.out)
     s2 = spatial_aggregation(brk, region, s, cell.area, weight, poly.out)
     
     row.names = c(row.nm, "all_basins")
-    month.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
-                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
-                      by   = "month")
     
     out = rbind(s1,s2)
     out = cbind(row.names, out)
-    colnames(out) = c("Basin", as.character(month.cols))
+    colnames(out) = c("Basin", as.character(dt.cols))
     
     if(is.na(out.nm) == F){
       # make a date sequence for the column names. assume full years (Jan through Dec)
