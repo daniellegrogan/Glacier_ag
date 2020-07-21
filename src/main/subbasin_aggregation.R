@@ -38,22 +38,119 @@ sapply(file.sources, source)
 # shapefiles for spatial agg
 basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
 
-subbasins = raster("/net/nfs/zero/home/WBM_TrANS/data/watershed_regions/HiMAT_full_210_Subset/HiMAT_full_210_Subset_regions.asc")
-subbasins = mask(subbasins, basins)
-subbasins.poly = rasterToPolygons(subbasins, dissolve = T)
-crs(subbasins.poly) = crs(basins)
+# subbasins = raster("/net/nfs/zero/home/WBM_TrANS/data/watershed_regions/HiMAT_full_210_Subset/HiMAT_full_210_Subset_regions.asc")
+# subbasins = mask(subbasins, basins)
+# subbasins.poly = rasterToPolygons(subbasins, dissolve = T)
+# crs(subbasins.poly) = crs(basins)
+# writeOGR(subbasins.poly, dsn = "data/subbasin_poly/", layer = "subbasin_poly", driver = "ESRI Shapefile")
+
+subbasins.poly = readOGR(dsn = "data/subbasin_poly/", layer = "subbasin_poly")
+
+indus = basins[basins$name == "Indus",]
+sub.indus = crop(subbasins.poly, indus)
 
 coastline = readOGR("data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
 coastline = spTransform(coastline, crs(basins))
 
 # spatial aggregation
-vars = c("irrigationGross", "GrossIrr_mm_pgi",  "runoff", "runoff_mm_pgi")                                                             # other useful vars
+vars = c("irrigationGross", "GrossIrr_mm_pgi",  "runoff", "runoff_mm_pgi") 
+vars = c("GrossIrr_mm_pgn", "runoff_mm_pgn", "GrossIrr_mm_pu", "runoff_mm_pu") 
+vars = c("GrossIrr_mm_ps", "runoff_mm_ps", "snowMelt", "snowFall", "precip")      # other useful vars
 lapply(vars, FUN = function(var){create_dir(file.path("results/subbasin", var))})
 
 mod = "ERA_hist"
 path.out  = "results/subbasin"
 path.base = file.path("/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2019_12", mod)
 years = seq(1980, 2009)  # climatology historical time series
+
+# monthly climatology
+month.data = read.csv("data/days_in_months.csv")
+
+for(var in vars){
+  # check if file exists
+  check.file = paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_mc.csv", sep="")
+  if(!exists(check.file)){
+    sp.agg = spatial_aggregation(raster.data = brick(paste(path.base, "/climatology/wbm_", var, "_mc.nc", sep=""))*month.data$days,
+                                 shapefile = subbasins.poly)
+    colnames(sp.agg@data)[2:13] = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    out.nm = paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_mc.csv", sep="")
+    write.csv(sp.agg@data, out.nm, row.names = F)
+  }
+  print(var)
+}
+
+################################################################################################################################################
+month_max_table = function(base.var, 
+                           p.var,
+                           path, 
+                           mod){
+  
+  # load data
+  base.dat = read.csv(paste(path, "/", base.var, "/", mod, "_subbasin_", base.var, "_km3_mc.csv", sep=""))
+  p.dat    = read.csv(paste(path, "/", p.var   , "/", mod, "_subbasin_", p.var   , "_km3_mc.csv", sep=""))
+  
+  # subset to subbasins with > 0 of base.var
+  p.dat    = subset(p.dat, rowSums(base.dat[,2:ncol(base.dat)]) > 0)
+  base.dat = subset(base.dat, rowSums(base.dat[,2:ncol(base.dat)]) > 0)
+  
+  month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  
+  # month of max p.var km3
+  max.p.km3 = apply(p.dat[,2:ncol(p.dat)], c(1), max, na.rm=T)
+  max.month = (p.dat == max.p.km3)
+  max.month.id = apply(max.month, MARGIN = c(1), FUN = function(x) which(x == T))
+  max.month.names = month.names[unlist(max.month.id)]
+  
+  # text formatting
+  max.p.km3 = signif(max.p.km3,2)
+  
+  # month of max p.var %
+  p.percent = 100*(p.dat / base.dat)
+  max.p.percent = apply(p.percent[,2:ncol(p.percent)], c(1), max, na.rm=T)
+  
+  # plotting aside
+  b = c(1,seq(5,100, by=5))
+  png("figures/Historical/irrGross_pgi_max_month_percent_histogram_1980_2009_mc.png", width = 1500, height=1000, res=130)
+  hist(max.p.percent, breaks = 15, labels=T, 
+       main = "% Glacier Melt in Irr Water in Month of Max: 391 Subbasins",
+       xlab = "Maximum monthly percent")
+  dev.off()
+  
+  max.p.5 = subset(max.p.percent, max.p.percent <= 5)
+  png("figures/Historical/irrGross_pgi_max_month_percent_le5_histogram_1980_2009_mc.png", width = 1500, height=1000, res=130)
+  hist(max.p.5, breaks = 5, labels=T, 
+       main = "% Glacier Melt in Irr Water in Month of Max: 258 Subbasins",
+       xlab = "Maximum monthly percent")
+  dev.off()
+  
+  max.month.percent = (p.percent == max.p.percent)
+  max.month.id.percent = apply(max.month.percent, MARGIN = c(1), FUN = function(x) which(x == T))
+  max.month.percent.names = month.names[unlist(max.month.id.percent)]
+  
+  # text formatting
+  max.p.percent = signif(max.p.percent,2)
+  max.p.percent[max.p.percent < 0.1] = "<0.1"
+  
+  max.month.out = as.data.frame(cbind(p.dat$HiMAT_full_210_Subset_regions, 
+                                      max.month.names,
+                                      max.p.km3,
+                                      max.month.percent.names,
+                                      max.p.percent
+                                      )
+                                )
+  colnames(max.month.out) = c("Subbasin", "Month_of_Max_km3", "Max_km3", "Month_of_Max_%", "Max_%")
+  
+}
+
+
+base.var = "irrigationGross"
+p.var = "GrossIrr_mm_pgi"
+path = "results/subbasin/"
+mod = "ERA_hist"
+
+
+################################################################################################################################################
+
 
 yearly.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path.base, "yearly", var), 
                                                    shp = subbasins.poly, 
