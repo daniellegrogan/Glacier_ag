@@ -123,6 +123,13 @@ month_max_table = function(base.var,
        xlab = "Maximum monthly percent")
   dev.off()
   
+  max.p.1 = subset(max.p.percent, max.p.percent <= 1)
+  png("figures/Historical/irrGross_pgi_max_month_percent_le1_histogram_1980_2009_mc.png", width = 1500, height=1000, res=130)
+  hist(max.p.1, breaks = 10, labels=T, 
+       main = "% Glacier Melt in Irr Water in Month of Max: 217 Subbasins",
+       xlab = "Maximum monthly percent")
+  dev.off()
+  
   max.month.percent = (p.percent == max.p.percent)
   max.month.id.percent = apply(max.month.percent, MARGIN = c(1), FUN = function(x) which(x == T))
   max.month.percent.names = month.names[unlist(max.month.id.percent)]
