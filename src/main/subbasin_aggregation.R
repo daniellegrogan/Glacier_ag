@@ -155,49 +155,10 @@ p.var = "GrossIrr_mm_pgi"
 path = "results/subbasin/"
 mod = "ERA_hist"
 
-
+month_max_table(base.var, p.var, path, mod)
 ################################################################################################################################################
 
-
-yearly.agg = lapply(vars, function(var) extract_ts(raster.path = file.path(path.base, "yearly", var), 
-                                                   shp = subbasins.poly, 
-                                                   years, 
-                                                   var, 
-                                                   row.nm = as.character(subbasins.poly$HiMAT_full_210_Subset_regions),
-                                                   out.nm = paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_",  min(years), "_", max(years), "_monthly.csv", sep=""),
-                                                   check.file = 0))
-
-# test with loop
-for(var in vars){
-  extract_ts(raster.path = file.path(path.base, "yearly", var), 
-             shp = subbasins.poly, 
-             years, 
-             var, 
-             row.nm = as.character(subbasins.poly$HiMAT_full_210_Subset_regions),
-             out.nm = paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep=""),
-             check.file = 0)
-  print(var)
-}
-
-yc.agg = lapply(vars, function(var) yearly_to_yc(data.y = read.csv(paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_",  min(years), "_", max(years), "_yearly.csv", sep="")),
-                                                 years = seq(1980,2009),
-                                                 out.nm = paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_",  min(years), "_", max(years), "_yc.csv", sep="")))
-
-
-# yearly climatology
-for(var in vars){
-  sp.agg = spatial_aggregation(raster.data = raster(paste(path.base, "/climatology/wbm_", var, "_yc.nc", sep=""))*365,
-                      shapefile = subbasins.poly)
-  colnames(sp.agg@data)[2] = paste(var, "_km3", sep="")
-  out.nm = paste(path.out, "/", var, "/", mod, "_subbasin_", var, "_km3_yc.csv", sep="")
-  write.csv(sp.agg@data, out.nm, row.names = F)
-  print(var)
-}
-
-basin.layer = list("sp.polygons", basins, col = "lightgrey", first=FALSE)
-coastline.layer = list("sp.polygons", coastline, col = "darkgrey", lwd=1.5, first=TRUE)
-spplot(sp.agg, "irrigationGross_km3", sp.layout = list(basin.layer, coastline.layer), col = "transparent")
-
+# FIGURES
 
 # monthly climatology
 month.data = read.csv("data/days_in_months.csv")
@@ -219,8 +180,6 @@ red.pal = colorRampPalette(brewer.pal(n = 7, name = "OrRd"))(20)
 png("figures/Historical/irrGross_SUBBASINS_1980_2009_mc.png", width = 1500, height=1000, res=130)
 spplot(irrGross, zcol=seq(2,13), sp.layout = list(basin.layer, coastline.layer), col.regions = red.pal, col = "transparent", as.table=TRUE)
 dev.off()
-
-# spplot(sp.agg, zcol=2, sp.layout = list(basin.layer, coastline.layer), col.regions = red.pal, col = "transparent", as.table=TRUE)
 
 irr.pgi = spatial_aggregation(raster.data = brick(file.path(path.base, "climatology/wbm_GrossIrr_mm_pgi_mc.nc"))*month.data$days,
                            shapefile = subbasins.poly)
