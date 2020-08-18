@@ -106,7 +106,7 @@ blues2<-colorRampPalette(c("cadetblue2", "dodgerblue1", "dodgerblue2", "dodgerbl
 basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
 coastline = readOGR("data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
 coastline = spTransform(coastline, crs(basins))
-coastline.shadow = shift(coastline, x= 0.15, y=-0.08)
+coastline.shadow = raster::shift(x=coastline, dx= 0.15, dy=-0.08)
 
 # input
 mod = "ERA_hist"
@@ -147,3 +147,21 @@ figure_3part(coastline,
              out.dir = map.dir, 
              out.nm)
 
+
+
+###
+png(paste(map.dir, "Glacier_icemelt_basins.png", sep=""), 
+    height=6, width=7, units = 'in', res=300)
+par(mar=c(7, 4, 0.5, 0.5))
+plot(coastline.shadow,  xlim = xl, ylim = yl, border='grey90', lwd=4)
+plot(coastline,         xlim = xl, ylim = yl, border='grey70', col='white',  lwd=1, add=T)
+plot(glacier.icemelt,   add=T, col = p1,     legend=F,          box=F, axes=T, las=1)
+plot(basins, xlim = xl, ylim = yl, add=T,  lwd=0.8, border='grey15')
+
+# legend: NB - need to move legend to better position for publication. below plots?
+plot(glacier.icemelt,    add=T, col = p1, box=F, axes=T, las=1,
+     legend.only=T, legend.width=0.4, horizontal=T, 
+     smallplot=c(0.02, 0.28, 0.07, 0.09),
+     axis.args=list(cex.axis=0.8),
+     legend.args=list(text='Glacier ice melt (mm/year)', side=3, font=1, line=0.05, cex=0.8))
+dev.off()
