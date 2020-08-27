@@ -41,6 +41,9 @@ hma.irr.per = 100*(hma.irr.prod.total/hma.crop.prod.total)
 # glacier area
 glacier.area = raster("/net/nfs/yukon/raid5/data/RGI6/global_rgi6_glaciers_1km.tif")
 glacier.area = crop(glacier.area, extent(basins))
+cell.area = raster::area(glacier.area)
+glacier.area.km2 = cell.area * glacier.area
+cellStats(glacier.area.km2, sum)
 
 # precip 
 precip.yc = read.csv("results/precip/ERA_hist_basin_precip_km3_1980_2009_yc.csv")
@@ -50,6 +53,9 @@ glmelt.yc = read.csv("results/Glacier_ice_melt/ERA_hist_glacier_melt_basins_1980
 
 # yearly melt
 glmelt.y = read.csv("results/Glacier_ice_melt/ERA_hist_glacier_melt_basins_yearly.csv")
+glmelt.sum = colSums(glmelt.y[2:ncol(glmelt.y)])
+glmelt.mean = mean(glmelt.sum)
+summary(lm(glmelt.sum ~ seq(1:37)))
 
 ## Make table
 study.domain = cbind(basins$name, basin.area, crop.prod.basins, irr.prod.basins, precip.yc$Mean, glmelt.yc$Mean)
@@ -59,3 +65,28 @@ colnames(study.domain) = c("Basin", "Area (1000 km2)",
                          "Precipitation (km3/yr)", "Glacier Ice Melt (km3/yr)")
                          
 write.csv(study.domain, "results/Tables/Study_domain.csv", row.names=F)
+
+
+
+# irrigated cropland
+irr.land = raster("/net/nfs/bog/raid/data/dgrogan/MIRCA_data/WBM_format/IrrAreaFraction_MIRCA2000_05mn.nc")
+cell.area = raster::area(irr.land)
+
+irr.land.km2 = irr.land * cell.area
+irr.land.km2.basins = extract(irr.land.km2, basins, fun=sum, na.rm=T, sp=F)
+
+sum(irr.land.km2.basins)
+
+# reservoirs
+dams = read.csv("/net/nfs/zero/home/WBM_TrANS/spreadsheets/GRanD_dams_v1_3.csv")
+dams = as.data.frame(dams)
+coordinates(dams) <- ~ LONG_DD + LAT_DD   
+crs(dams) = crs(basins)
+dams.hma = dams[basins,] 
+dim(dams.hma)
+sum(dams.hma$USE_IRRI == "Main" | dams.hma$USE_IRRI == "Sec")
+dams.irri = subset(dams, dams.hma$USE_IRRI == "Main" | dams.hma$USE_IRRI == "Sec")
+sum(dams.irri$CAP_MAX)
+
+# IBTs
+
