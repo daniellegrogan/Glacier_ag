@@ -25,8 +25,9 @@ irrFlow_pgi_y_stats   = read.csv(paste("results/Irrigation/irrigationFlow/",  mo
 irrGrwt_pgi_y_stats   = read.csv(paste("results/Irrigation/irrigationGrwt/",  mod.hist, "_basin_IrrGrwt_pgi_1980_2009_yearly_stats.csv", sep=""))
 
 # calc mean and stdev for ice melt
-icemelt.y_hist = read.csv(file.path("results/Glacier_ice_melt", paste(mod.hist, "_glacier_melt_basins_yearly.csv", sep="")), sep=",")
-icemelt.y_hist = icemelt.y_hist[2:ncol(icemelt.y_hist)]
+icemelt.y_hist = read.csv("results/glMelt/ERA_hist_basin_glMelt_km3_1980_2009_yearly.csv")
+icemelt.y_hist = icemelt.y_hist[3:ncol(icemelt.y_hist)]
+rownames(icemelt.y_hist) = rownames(irrGrwt_pgi_y_stats)
 
 all_basin_sums = apply(icemelt.y_hist, c(2), sum)
 icemelt.y_hist[16,] = as.numeric(all_basin_sums)
@@ -37,7 +38,7 @@ icemelt.y_stdev = apply(icemelt.y_hist, c(1), FUN = sd)
 icemelt_y_stats = cbind(icemelt.y_mean, icemelt.y_stdev)
 rownames(icemelt_y_stats) = rownames(irrGross_pgi_y_stats)
 
-write.table(icemelt_y_stats, "results/ERA_hist/ERA_hist_glacier_melt_basins_yearly_stats.csv", sep=",")
+write.table(icemelt_y_stats, "results/glMelt/ERA_hist_glMelt_basins_yearly_stats.csv", sep=",")
 
 
 # Format table:

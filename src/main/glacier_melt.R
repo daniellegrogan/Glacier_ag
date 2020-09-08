@@ -1,3 +1,5 @@
+##### RESULTS IN GLACIER_ICE_MELT FOLDER WERE WRONG (DON'T MATCH WITH ROUNCE ET AL 2020). USE GLMELT VARIABLE INSTEAD
+
 # glacier_melt()  
 
 # Spatial aggregation of PyGEM model output: calculate glacier melt in km3/month for each basin

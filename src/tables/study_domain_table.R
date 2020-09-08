@@ -49,16 +49,12 @@ cellStats(glacier.area.km2, sum)
 precip.yc = read.csv("results/precip/ERA_hist_basin_precip_km3_1980_2009_yc.csv")
 
 # glacier ice melt
-glmelt.yc = read.csv("results/Glacier_ice_melt/ERA_hist_glacier_melt_basins_1980_2009_yc.csv")
-
-# yearly melt
-glmelt.y = read.csv("results/Glacier_ice_melt/ERA_hist_glacier_melt_basins_yearly.csv")
-glmelt.sum = colSums(glmelt.y[2:ncol(glmelt.y)])
-glmelt.mean = mean(glmelt.sum)
-summary(lm(glmelt.sum ~ seq(1:37)))
+glmelt.y = read.csv("results/glMelt/ERA_hist_basin_glMelt_km3_1980_2009_yearly.csv")
+glmelt.yc = rowMeans(glMelt.y[,3:ncol(glmelt.y)], na.rm=T)
+names(glmelt.yc) = glmelt.y$Basin
 
 ## Make table
-study.domain = cbind(basins$name, basin.area, crop.prod.basins, irr.prod.basins, precip.yc$Mean, glmelt.yc$Mean)
+study.domain = cbind(basins$name, basin.area, crop.prod.basins, irr.prod.basins, precip.yc$Mean[1:15], as.numeric(glmelt.yc)[1:15])
 study.domain[,1] = as.character(basins$name)
 colnames(study.domain) = c("Basin", "Area (1000 km2)", 
                          "Crop Production (1000 tonnes)", "Irrigated Crop Production (1000 tonnes)", 
