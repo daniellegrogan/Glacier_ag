@@ -50,8 +50,16 @@ basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
 basins$month.diff = mo.diff[1:15]
 
 #spplot(irrGross, zcol=seq(2,13), sp.layout = list(basin.layer, coastline.layer), col.regions = red.pal, col = "transparent", as.table=TRUE)
-spplot(basins, zcol = "month.diff", col='grey')
 
+basin.layer = list("sp.polygons", basins, col = "grey", first=FALSE)
+coastline = readOGR("data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+coastline = spTransform(coastline, crs(basins))
+coastline.layer = list("sp.polygons", coastline, col = "darkgrey", lwd=1.5, first=TRUE)
+
+
+png("figures/ERA_hist_MaxMonthDiff.png", width = 1500, height=1000, res=130)
+spplot(basins, zcol = "month.diff", col='grey', sp.layout = list(basin.layer, coastline.layer))
+dev.off()
 
 
 # gross irrigation
@@ -71,7 +79,8 @@ colnames(grossIrr.max.mo) = c("Basin", "month_of_max_grossIrr")
 
 test = cbind(grossIrr.max.mo, glMelt.max.mo[,2], rainsnow.max.mo[,2])
 
-########### SANDBOX
+####################################################################################
+##### glacier ice melt as a % of total water available by month (mc)
 
 # glacier ice melt as a % of total water available by month (mc)
 
