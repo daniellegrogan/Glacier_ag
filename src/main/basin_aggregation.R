@@ -44,6 +44,7 @@ vars = c("irrigationGross", "GrossIrr_mm_pgi", "GrossIrr_mm_pgn", "GrossIrr_mm_p
          'runoff', 'irrRunoff', 'snowMelt', 'snowFall', 'precip', 'irrigationGrwt', 'irrigationExtra', 'glMelt',          # water sources
          'baseflow_mm_pgi', 'etIrrCrops', 'soilMoist_mm_pgi')                                                             # other useful vars
 vars = c("etIrrCrops", "etIrrCrops_mm_pgi", "etIrrCrops_mm_pgn", "etIrrCrops_mm_ps", "etIrrCrops_mm_pr", "etIrrCrops_mm_pu")
+vars = c("IrrEvap_mm_pgi", "endoStrg_mm_pgi", "IrrEvap_mm_pgn", "endoStrg_mm_pgn")
 lapply(vars, FUN = function(var){create_dir(file.path("results", var))})
 
 # test
