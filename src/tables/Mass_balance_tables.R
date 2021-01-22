@@ -21,6 +21,8 @@ file.sources = list.files("src/functions", full.names = T)
 sapply(file.sources, source)
 
 ########################################################################################################################
+#### FLUX APPROACH ###
+########################################################################################################################
 
 # glacier ice melt
 glMelt.y = read.csv("results/glMelt/ERA_hist_basin_glMelt_km3_1980_2009_yearly.csv")
@@ -201,4 +203,23 @@ table_mass_balance.p[,2] =  mapply(function(x,y) format_text(x, y), x = etIrrCro
 table_mass_balance.p[,3] =  mapply(function(x,y) format_text(x, y), x = Qpgi.stats[,1],       y = Qpgi.stats[,2])
 table_mass_balance.p[,4] =  mapply(function(x,y) format_text(x, y), x = residual.stats[,1],   y = residual.stats[,2])
 write.csv(table_mass_balance.p, "results/Tables/Mass_balance_table_percent_yc.csv", quote=F, row.names=T)
+
+
+########################################################################################################################
+#### STORAGE APPROACH ###
+########################################################################################################################
+
+# storage vars:
+vars = c("endoStrg",       "cEndoP_pgi", 
+         "grndWater",      "grndWater_mm_pgi",
+         "irrRffStorage",  "surfRffStorage", "runoffStg_pgi",  # runoffStg = irrRffStorage + surfRffStorage
+         "resStorage",     "resStorage_m3_pgi",
+         "ricePaddyStrg", 
+         "soilMoist",      "soilMoist_mm_pgi",
+
+         )
+
+         
+
+
 
