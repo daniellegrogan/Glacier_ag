@@ -73,6 +73,26 @@ extract_ts = function(raster.path, # path to wbm output
                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
                      by   = "month")
       
+    }else if(grepl("daily", c(raster.path))){
+      
+      if(sum(is.na(years)) == 1){
+        file.list = list.files(path = raster.path, full.names = T)
+      }else{
+        file.list.full = list.files(path = raster.path, full.names = T)
+        file.yrs = substr(file.list.full, start = nchar(file.list.full)-6, stop= nchar(file.list.full)-3)
+        file.list = file.list.full[as.numeric(file.yrs) %in% years]
+      }
+      
+      brk = do.call(stack,
+                    lapply(file.list, 
+                           raster::brick, 
+                           varname = var))
+      
+      # column names
+      dt.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
+                     to   = as.Date(paste(max(years), "-12-31", sep="")), 
+                     by   = "day")
+      
     }
     
     s1 = spatial_aggregation(brk, shp,    s, cell.area, weight, poly.out)
