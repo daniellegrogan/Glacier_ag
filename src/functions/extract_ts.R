@@ -10,6 +10,9 @@ library(rgdal)
 library(rgeos)
 
 extract_ts = function(raster.path, # path to wbm output
+                      monthly.files = 0, # binary: 1 or 0 indicating the structure of WBM output files for monthly time series
+                                         # 0 := files are 1 file per year, 12 layers (temporal aggregate of WBM daily output)
+                                         # 1 := files are 1 file per month, with file structure montyly/YYYY/YYYY-MM.nc
                       shp,         # shapefile for spatial aggregation
                       years,       # sequence of years
                       var = NA,    # only needed if wbm output is monthly; variable name to load
@@ -31,14 +34,15 @@ extract_ts = function(raster.path, # path to wbm output
     
     if(grepl("yearly", c(raster.path))){
       
-      if(sum(is.na(years)) == 1){
+      if(sum(is.na(years)) == 1){ # if years are not specified, use all years 
         file.list = list.files(path = path, full.names = T)
-      }else{
+      }else{ # otherwise subset the list of files to those with the specified years
         file.list.full = list.files(path = raster.path, full.names = T)
         file.yrs = substr(file.list.full, start = nchar(file.list.full)-6, stop= nchar(file.list.full)-3)
         file.list = file.list.full[as.numeric(file.yrs) %in% years]
       }
       
+      # load all yearly files into a raster brick
       brk = do.call(stack,
                     lapply(file.list, 
                            raster::brick))
@@ -49,7 +53,7 @@ extract_ts = function(raster.path, # path to wbm output
                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
                      by   = "year")
       
-    }else if(grepl("monthly", c(raster.path))){
+    }else if(grepl("monthly", c(raster.path)) & monthly.files == 0){
       
       if(sum(is.na(years)) == 1){
         file.list = list.files(path = raster.path, full.names = T)
@@ -73,6 +77,37 @@ extract_ts = function(raster.path, # path to wbm output
                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
                      by   = "month")
       
+    }else if(grepl("monthly", c(raster.path)) & monthly.files == 1){
+      if(sum(is.na(years)) == 1){ # if years are not specified, use all years 
+        dir.list = dir(path, full.names = T)      # in this file structure, there are directories for each year. List the directories
+        file.list = unlist(lapply(dir.list, FUN=list.files, full.names = T)) # list files
+      }else{
+        dir.list.full = dir(path, full.names = T) # list all directories
+        dir.list.yrs = subset(dir.list.full,      # subset to those with names that match the "years" specified
+                              as.numeric(
+                                substr(dir.list.full, 
+                                       start = nchar(dir.list.full)-3, 
+                                       stop = nchar(dir.list.full))) 
+                              %in% years)
+        file.list = unlist(lapply(dir.list.yrs, FUN=list.files, full.names = T)) # list files
+      }
+      
+      # load all files into a raster brick
+      brk = do.call(stack,
+                    lapply(file.list, 
+                           raster::brick, 
+                           varname = var))
+      
+      # x days-per-month to convert from ave/month to total per month
+      month.data = read.csv("data/days_in_months.csv")
+      brk = month.data$days*brk
+      
+      # column names
+      dt.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
+                     to   = as.Date(paste(max(years), "-12-01", sep="")), 
+                     by   = "month")
+      names(brk) = dt.cols
+    
     }else if(grepl("daily", c(raster.path))){
       
       if(sum(is.na(years)) == 1){
