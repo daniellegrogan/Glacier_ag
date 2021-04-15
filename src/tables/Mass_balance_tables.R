@@ -210,13 +210,11 @@ write.csv(table_mass_balance.p, "results/Tables/Mass_balance_table_percent_yc.cs
 ########################################################################################################################
 
 # storage vars:
-vars = c("endoStrg",       "cEndoP_pgi", 
-         "grndWater",      "grndWater_mm_pgi",
-         "irrRffStorage",  "surfRffStorage", "runoffStg_pgi",  # runoffStg = irrRffStorage + surfRffStorage
-         "resStorage",     "resStorage_m3_pgi",
-         "ricePaddyStrg", 
+vars = c("resStorage",     "resStorage_mm_pgi",
+         "endoStrg",       "endoStrg_mm_pgi", 
+         "irrRffStorage",  "surfRffStorage", "runoffStg_mm_pgi",  # runoffStg = irrRffStorage + surfRffStorage
          "soilMoist",      "soilMoist_mm_pgi",
-
+         "grndWater",      "grndWater_mm_pgi"
          )
 
          

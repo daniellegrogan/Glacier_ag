@@ -27,10 +27,8 @@ source("src/functions/extract_ts.R")
 #####################################################################################################################################
 
 # paths
-path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2021-02/HiMAT_clim_1981_2010/"  #NB: year 2010 got cut off - don't use
+path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2021-02/HiMAT_clim_1981_2040_v2/" 
 path.out = "results/spinup_clim/"
-path.base = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/2021-02/HiMAT_wbm_core_noCrops/"  #NB: year 2010 got cut off - don't use
-
 
 # shapefiles for spatial agg
 basins = readOGR("data/basins_hma", "basins_hma")  # basins to aggregate over
@@ -83,7 +81,7 @@ lapply(vars.stor, FUN = function(var){create_dir(file.path("results/spinup_clim"
 # aggregate storage vars by basin
 basin.agg = lapply(vars.stor, function(var) extract_ts(raster.path = file.path(path.base, "daily"), 
                                                        shp = basins, 
-                                                       years = seq(1981, 2010), 
+                                                       years = seq(1981, 2040), 
                                                        var, 
                                                        row.nm = as.character(basins$name),
                                                        out.nm = paste(path.out, var, "/basin_", var, "_km3_daily.csv", sep=""),
