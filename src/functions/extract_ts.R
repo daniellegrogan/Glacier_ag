@@ -133,7 +133,8 @@ extract_ts = function(raster.path, # path to wbm output
     
     out = rbind(s1,s2)
     out = cbind(row.names, out)
-    colnames(out) = c("Basin", as.character(dt.cols))
+    #colnames(out) = c("Basin", as.character(dt.cols))
+    colnames(out) = c("Basin", as.character(dt.cols)[1:length(names(brk))]) # temporary
     
     if(is.na(out.nm) == F){
       # make a date sequence for the column names. assume full years (Jan through Dec)
