@@ -101,8 +101,8 @@ extract_ts = function(raster.path, # path to wbm output
       dt.cols =  seq(from = as.Date(paste(min(years), "-01-01", sep="")), 
                      to   = as.Date(paste(max(years), "-12-01", sep="")), 
                      by   = "month")
-      # names(brk) = dt.cols
-      names(brk) = dt.cols[1:length(names(brk))] # temporary fix while Alex figures out leap year bug
+      names(brk) = dt.cols
+      # names(brk) = dt.cols[1:length(names(brk))] # temporary fix while Alex figures out leap year bug
     
     }else if(grepl("daily", c(raster.path))){
       
@@ -133,8 +133,8 @@ extract_ts = function(raster.path, # path to wbm output
     
     out = rbind(s1,s2)
     out = cbind(row.names, out)
-    #colnames(out) = c("Basin", as.character(dt.cols))
-    colnames(out) = c("Basin", as.character(dt.cols)[1:length(names(brk))]) # temporary
+    colnames(out) = c("Basin", as.character(dt.cols))
+    #colnames(out) = c("Basin", as.character(dt.cols)[1:length(names(brk))]) # temporary
     
     if(is.na(out.nm) == F){
       # make a date sequence for the column names. assume full years (Jan through Dec)
